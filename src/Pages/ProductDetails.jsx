@@ -37,15 +37,15 @@ const features = [
   },
 ];
 
-  const [selectedImg, setSelectedImg] = useState(product.img);
-  const [selectedUnit, setSelectedUnit] = useState(product.qty);
-  const thumbnails = [product.img, Img1];
+  const [selectedImg, setSelectedImg] = useState(product.img || product.image || Img2);
+  const [selectedUnit, setSelectedUnit] = useState(product.qty || product.weight);
+  const thumbnails = [product.img || product.image || Img2, Img1];
 
   useEffect(() => {
     if (productData) {
       setProduct(productData);
-      setSelectedImg(productData.img);
-      setSelectedUnit(productData.qty);
+      setSelectedImg(productData.img || productData.image || Img2);
+      setSelectedUnit(productData.qty || productData.weight);
     }
   }, [productData]);
 
@@ -124,18 +124,17 @@ const features = [
           <p className="font-medium mb-2">Select Unit</p>
           <div className="flex gap-3 mb-4">
             <button
-              onClick={() => setSelectedUnit(product.qty)}
-              className={`px-4 py-2 rounded-lg border ${selectedUnit === product.qty
+              onClick={() => setSelectedUnit(product.qty || product.weight)}
+              className={`px-4 py-2 rounded-lg border ${selectedUnit === (product.qty || product.weight)
                 ? "border-green-600 bg-green-50 text-green-700"
                 : ""
                 }`}
             >
-              <p className="text-sm">{product.qty}</p>
+              <p className="text-sm">{product.qty || product.weight}</p>
               <p className="font-semibold">₹{product.price}</p>
             </button>
           </div>
           
-
 
           {/* PRICE + ADD TO CART */}
           <div className="flex items-center justify-between mb-6">

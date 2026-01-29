@@ -18,7 +18,7 @@ export default function CartSidebar({ isOpen, onClose, cartItems, setCartItems }
       return item;
     }).filter(item => item.qty > 0));
   };
-  
+
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -111,6 +111,11 @@ export default function CartSidebar({ isOpen, onClose, cartItems, setCartItems }
               <span>₹{handlingCharge}</span>
             </div>
 
+            <div className="flex justify-between text-sm">
+              <span>Discount</span>
+              <span>₹{handlingCharge}</span>
+            </div>
+
             <div className="flex justify-between font-semibold">
               <span>Grand total</span>
               <span>₹{total}</span>
@@ -150,7 +155,7 @@ export default function CartSidebar({ isOpen, onClose, cartItems, setCartItems }
             </div>
           </div>
         </div>
-        
+
 
         {/* FOOTER */}
         <div className="p-4 border-t">

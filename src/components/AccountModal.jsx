@@ -85,6 +85,7 @@ const AccountModal = ({ isOpen, onClose }) => {
             onClick={() => {
               console.log("Logout");
               onClose();
+              navigate("/");
             }}
             className="flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-red-600 transition hover:bg-red-50"
           >

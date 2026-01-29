@@ -7,6 +7,7 @@ export default function VendorModal({ isOpen, onClose }) {
     ownerName: "",
     email: "",
     password: "",
+    pan_Num: "",
   });
   const [submittedVendor, setSubmittedVendor] = useState(null);
 
@@ -20,13 +21,14 @@ export default function VendorModal({ isOpen, onClose }) {
     e.preventDefault();
     console.log("Vendor Account Created:", vendor);
     setSubmittedVendor(vendor);
-    
+
     // Reset form
     setVendor({
       shopName: "",
       ownerName: "",
       email: "",
       password: "",
+      pan_Num: "",
     });
   };
 
@@ -36,7 +38,7 @@ export default function VendorModal({ isOpen, onClose }) {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
         <div className="bg-white w-full max-w-md rounded-2xl shadow-xl relative">
           {/* Close Button */}
-          <button 
+          <button
             onClick={() => {
               setSubmittedVendor(null);
               onClose();
@@ -67,7 +69,7 @@ export default function VendorModal({ isOpen, onClose }) {
                   <p className="font-medium">{submittedVendor.shopName}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <User size={20} className="text-green-600" />
                 <div>
@@ -75,7 +77,15 @@ export default function VendorModal({ isOpen, onClose }) {
                   <p className="font-medium">{submittedVendor.ownerName}</p>
                 </div>
               </div>
-              
+
+              <div className="flex items-center gap-3">
+                <User size={20} className="text-green-600" />
+                <div>
+                  <p className="text-xs text-gray-500">Pan Number</p>
+                  <p className="font-medium">{submittedVendor.ownerName}</p>
+                </div>
+              </div>
+
               <div className="flex items-center gap-3">
                 <Mail size={20} className="text-green-600" />
                 <div>
@@ -83,7 +93,7 @@ export default function VendorModal({ isOpen, onClose }) {
                   <p className="font-medium">{submittedVendor.email}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <Lock size={20} className="text-green-600" />
                 <div>

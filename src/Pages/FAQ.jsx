@@ -79,7 +79,7 @@ export default function FAQ() {
         {/* DELIVERY SECTION */}
         <h2 className="text-xl font-semibold mb-4 pl-2">Delivery</h2>
 
-        <div className="border rounded-lg divide-y">
+        <div className=" rounded-lg divide-y">
           {faqs.map((faq, index) => (
             <div key={index}>
               <button
@@ -106,7 +106,7 @@ export default function FAQ() {
         {/* CANCELLATION SECTION */}
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-4 pl-2">Cancellation and Return</h2>
-          <div className="border rounded-lg divide-y">
+          <div className=" rounded-lg divide-y">
             {cancellation.map((faq, index) => (
               <div key={index}>
                 <button

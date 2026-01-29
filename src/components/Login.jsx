@@ -18,7 +18,7 @@ export default function Login() {
 
     if (email === AUTH_EMAIL && password === AUTH_PASSWORD) {
       setError("");
-      alert("Login Successful ✅");
+    
 
       // store login state (optional)
       localStorage.setItem("isLoggedIn", "true");

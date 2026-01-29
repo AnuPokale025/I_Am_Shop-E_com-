@@ -10,6 +10,7 @@ import Cart from "../Pages/Cart.jsx";
 import SidebarModal from "./SidebarModal";
 import AccountModal from "./AccountModal";
 import VendorModal from "../Pages/VendorModal";   // ✅ ADD
+import BannerImg from "../assets/new/banner.jpg"
 
 export default function Header({ cartItems, setCartItems }) {
   const [openCart, setOpenCart] = useState(false);
@@ -33,7 +34,7 @@ export default function Header({ cartItems, setCartItems }) {
           >
             I am <span className="text-green-600">Shop</span>
           </div>
-         
+
 
           {/* Search */}
           <div className="relative flex-1 max-w-md">
@@ -74,6 +75,14 @@ export default function Header({ cartItems, setCartItems }) {
           </button>
         </div>
       </header>
+
+      <div className="w-full h-64 md:h-96 overflow-hidden">
+        <img
+          src={BannerImg}
+          alt="Banner"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
       {/* Pages */}
       <Categories />

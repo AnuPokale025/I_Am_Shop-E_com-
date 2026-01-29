@@ -30,14 +30,14 @@ export default function Footer() {
           {/* Business Links */}
           <div>
             <h3 className="font-semibold text-transparent mb-4">.</h3>
-            <ul className="space-y-2">
+            {/* <ul className="space-y-2">
               <li>Partner</li>
               <li>Franchise</li>
               <li>Seller</li>
               <li>Warehouse</li>
               <li>Deliver</li>
               <li>Resources</li>
-            </ul>
+            </ul> */}
           </div>
 
           {/* Categories Column 1 */}
