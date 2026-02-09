@@ -1,22 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-import dairyImg from "../assets/categories/bakery.jpg";
-import coldDrinkImg from "../assets/categories/cold drink.jpg";
-import snacksImg from "../assets/categories/chips.jpg";
-import babyCareImg from "../assets/categories/baby care.jpg";
-import cleaningEssentialsImg from "../assets/categories/cleaning essentials.jpg";
-import homeOfficeImg from "../assets/categories/home and office.jpg";
-import organicImg from "../assets/categories/organic.jpg";
-import breakfastFoodImg from "../assets/categories/breakfast instant food.jpg";
-import masalaImg from "../assets/categories/masala.jpg";
-import ataImg from "../assets/categories/ata.jpg";
-import saucesImg from "../assets/categories/sauces.jpg";
-import petCareImg from "../assets/categories/pet.jpg";
 import BannerImg from "../assets/new/banner.jpg";
 import BannerImg2 from "../assets/new/ban1.jpg";
 import BannerImg3 from "../assets/new/ban2.jpg";
-
-import { useState, useEffect } from "react";
 
 const bannerImages = [
   
@@ -24,24 +11,36 @@ const bannerImages = [
   { id: 2, src: BannerImg3, alt: "Banner 3" },
 ];
 
-const categories = [
-  { id: 1, name: "Dairy, Bread & Eggs", img: dairyImg, slug: "dairy" },
-  { id: 2, name: "Cold Drinks & Juices", img: coldDrinkImg, slug: "cold-drink" },
-  { id: 3, name: "Snacks & Munchies", img: snacksImg, slug: "snack" },
-  { id: 4, name: "Baby Care", img: babyCareImg, slug: "baby-care" },
-  { id: 5, name: "Cleaning Essentials", img: cleaningEssentialsImg, slug: "cleaning-essentials" },
-  { id: 6, name: "Home & Office", img: homeOfficeImg, slug: "home-office" },
-  { id: 7, name: "Organic Products", img: organicImg, slug: "organic-products" },
-  { id: 8, name: "Breakfast & Instant Food", img: breakfastFoodImg, slug: "breakfast-instant-food" },
-  { id: 9, name: "Masala & Spices", img: masalaImg, slug: "masala-spices" },
-  { id: 10, name: "Ata & Flours", img: ataImg, slug: "ata-flours" },
-  { id: 11, name: "Sauces & Spreads", img: saucesImg, slug: "sauces-spreads" },
-  { id: 12, name: "Pet Care", img: petCareImg, slug: "pet-care" },
-];
+// Export categories for use in other components
+export const categoryData = []; // Will be populated from API
 
 const Categories = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('https://iamashop-production.up.railway.app/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(Array.isArray(data) ? data : []);
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Auto-rotate banner images every 3 seconds
   useEffect(() => {
@@ -123,26 +122,40 @@ const Categories = () => {
       <section className="mx-auto max-w-7xl px-4 py-8">
         <h2 className="mb-6 text-xl font-semibold">Shop by Category</h2>
 
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              onClick={() => navigate(`/Categories/${cat.slug}`)}
-              className="cursor-pointer text-center"
-            >
-              <div className="mx-auto h-44 w-44 overflow-hidden rounded-3xl transition-transform hover:scale-105">
-                <img
-                  src={cat.img}
-                  alt={cat.name}
-                  className="h-full w-full object-cover"
-                />
+        {loading ? (
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {[...Array(12)].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="mx-auto h-44 w-44 bg-gray-200 rounded-3xl"></div>
+                <div className="mt-2 h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
               </div>
-              <p className="mt-2 text-sm font-medium text-gray-800">
-                {cat.name}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {categories.map((cat) => (
+              <div
+                key={cat.id}
+                onClick={() => navigate(`/category/${cat.slug}`)}
+                className="cursor-pointer text-center"
+              >
+                <div className="mx-auto h-44 w-44 overflow-hidden rounded-3xl transition-transform hover:scale-105">
+                  <img
+                    src={cat.image || cat.img}
+                    alt={cat.name}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://placehold.co/200x200?text=No+Image';
+                    }}
+                  />
+                </div>
+                <p className="mt-2 text-sm font-medium text-gray-800">
+                  {cat.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
 
