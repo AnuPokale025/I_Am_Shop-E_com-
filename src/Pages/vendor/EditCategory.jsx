@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Upload, Save } from "lucide-react";
+import { Upload, Save, ArrowLeft } from "lucide-react";
 import vendorAPI from "../../api/vendor.api";
 
 const EditCategory = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // category id from route
+  const { categoryId } = useParams();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -15,16 +15,36 @@ const EditCategory = () => {
 
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
 
-  /* ================= FETCH CATEGORY ================= */
+  /* =========================
+     FETCH CATEGORY
+  ========================= */
   useEffect(() => {
+    if (!categoryId) return;
     fetchCategory();
-  }, []);
+
+    return () => {
+      if (preview?.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [categoryId]);
 
   const fetchCategory = async () => {
     try {
-      const data = await vendorAPI.getCategoryById(id);
+      setFetching(true);
+      setError("");
+
+      const res = await vendorAPI.getCategoryById(categoryId);
+
+      // ✅ SAFELY UNWRAP API RESPONSE
+      const data = res?.data || res;
+
+      if (!data) {
+        throw new Error("Invalid category response");
+      }
 
       setFormData({
         name: data.name || "",
@@ -33,32 +53,47 @@ const EditCategory = () => {
       });
 
       if (data.image) {
-        setPreview(data.image); // existing image URL
+        setPreview(
+          data.image.startsWith("http")
+            ? data.image
+            : `https://iamashop-production.up.railway.app/api/categories/image/${data.image}`
+        );
       }
     } catch (err) {
-      console.error(err);
-      setError("Failed to load category");
+      console.error("❌ Fetch category failed:", err);
+      setError("Failed to load category details");
+    } finally {
+      setFetching(false);
     }
   };
 
-  /* ================= INPUT CHANGE ================= */
+  /* =========================
+     INPUT CHANGE
+  ========================= */
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /* ================= IMAGE CHANGE ================= */
+  /* =========================
+     IMAGE CHANGE
+  ========================= */
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     setFormData((prev) => ({ ...prev, image: file }));
+
+    if (preview?.startsWith("blob:")) {
+      URL.revokeObjectURL(preview);
+    }
+
     setPreview(URL.createObjectURL(file));
   };
 
-  /* ================= SUBMIT ================= */
+  /* =========================
+     SUBMIT
+  ========================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -69,28 +104,45 @@ const EditCategory = () => {
       payload.append("name", formData.name);
       payload.append("slug", formData.slug);
 
-      if (formData.image) {
+      if (formData.image instanceof File) {
         payload.append("image", formData.image);
       }
 
-      await vendorAPI.updateCategory(id, payload);
-
-      navigate("/vendor/categories");
+      await vendorAPI.updateCategory(categoryId, payload);
+      navigate("/vendor/categories", { replace: true });
     } catch (err) {
-      console.error(err);
+      console.error("❌ Update failed:", err);
       setError("Failed to update category");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= UI ================= */
+  /* =========================
+     LOADING
+  ========================= */
+  if (fetching) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-b-2 border-indigo-600 rounded-full" />
+      </div>
+    );
+  }
+
+  /* =========================
+     UI
+  ========================= */
   return (
     <div className="min-h-screen bg-gray-50">
       {/* HEADER */}
       <div className="bg-white border-b shadow-sm">
         <div className="px-4 py-5 flex items-center gap-3">
-          <button onClick={() => navigate(-1)}>←</button>
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded hover:bg-gray-100"
+          >
+            <ArrowLeft size={20} />
+          </button>
           <h1 className="text-xl font-bold">Edit Category</h1>
         </div>
       </div>
@@ -105,7 +157,7 @@ const EditCategory = () => {
           </div>
         )}
 
-        {/* CATEGORY INFO */}
+        {/* INFO */}
         <div className="bg-white p-6 rounded-xl border">
           <h2 className="font-semibold mb-4">Category Information</h2>
 
@@ -134,9 +186,9 @@ const EditCategory = () => {
         <div className="bg-white p-6 rounded-xl border">
           <h2 className="font-semibold mb-4">Category Image</h2>
 
-          <label className="block border-2 border-dashed rounded-lg p-6 text-center cursor-pointer">
-            <Upload className="mx-auto mb-2" />
-            <span className="text-sm">
+          <label className="block border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-indigo-400">
+            <Upload className="mx-auto mb-2 text-gray-500" />
+            <span className="text-sm text-gray-600">
               {preview ? "Change image" : "Upload image"}
             </span>
             <input
@@ -148,13 +200,11 @@ const EditCategory = () => {
           </label>
 
           {preview && (
-            <div className="mt-4">
-              <img
-                src={preview}
-                alt="Category Preview"
-                className="h-40 w-40 object-cover rounded-lg border"
-              />
-            </div>
+            <img
+              src={preview}
+              alt="Preview"
+              className="mt-4 h-40 w-40 object-cover rounded-lg border"
+            />
           )}
         </div>
 
@@ -163,7 +213,7 @@ const EditCategory = () => {
           <button
             type="button"
             onClick={() => navigate("/vendor/categories")}
-            className="px-6 py-3 border rounded-lg"
+            className="px-6 py-3 border rounded-lg hover:bg-gray-50"
           >
             Cancel
           </button>
@@ -171,7 +221,7 @@ const EditCategory = () => {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg flex items-center gap-2"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
           >
             <Save size={18} />
             {loading ? "Updating..." : "Update Category"}

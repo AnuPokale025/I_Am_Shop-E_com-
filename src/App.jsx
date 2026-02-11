@@ -40,11 +40,13 @@ import EditProduct from "./Pages/vendor/EditProduct";
 import VendorOrders from "./Pages/vendor/VendorOrders";
 import VendorOrderDetail from "./Pages/vendor/VendorOrderDetail";
 // import VendorAnalytics from "./Pages/vendor/VendorAnalytics";
-import EditCategory from "./Pages/vendor/AddCategory";
+import EditCategory from "./Pages/vendor/EditCategory";
 
-import AdminLayout from "./layouts/AdminLayout";
+
+
 
 // Admin pages
+import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./Pages/admin/AdminDashboard";
 import AdminUser from "./Pages/admin/AdminUser";
 import AdminOrder from "./Pages/admin/AdminOrder";
@@ -52,6 +54,7 @@ import AdminVendor from "./Pages/admin/AdminVendor";
 import AdminProduct from "./Pages/admin/AdminProduct";
 import VendorCategory from "./Pages/vendor/VendorCategory";
 import AddCategory from "./Pages/vendor/AddCategory";
+
 
 
 function App() {
@@ -107,10 +110,11 @@ function App() {
                   <Route path="/vendor/dashboard" element={<VendorDashboard />} />
                   <Route path="/vendor/categories" element={<VendorCategory />} />
                   <Route path="/vendor/products" element={<VendorProducts />} />
+                  {/* <Route path="/vendor/user" element={<VendorUser/>} /> */}
                   <Route path="/vendor/products/add" element={<AddProduct />} />
                   <Route path="/vendor/categories/add" element={<AddCategory />} />
-     
-                  <Route path="/vendor/product/edit" element={<EditProduct />} />
+                  <Route path="/vendor/categories/:id" element={<EditCategory />} />
+                  <Route path="/vendor/products/:id" element={<EditProduct />} />
                   <Route path="/vendor/orders" element={<VendorOrders />} />
                   <Route
                     path="/vendor/orders/:id"

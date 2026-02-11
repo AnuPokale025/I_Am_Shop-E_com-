@@ -39,15 +39,15 @@ const VendorCategory = () => {
   };
 
   /* ================= DELETE ================= */
-  const deleteCategory = async (id) => {
+  const deleteCategory = async (categoryId) => {
     if (!window.confirm("Delete this category?")) return;
 
     try {
-      await vendorAPI.deleteCategory(id);
+      await vendorAPI.deleteCategory(categoryId);
       console.log("delete id");
       
       setCategories((prev) =>
-        prev.filter((c) => (c.id || c._id) !== id)
+        prev.filter((c) => (c.categoryId || c._id) !== categoryId)
       );
     } catch (err) {
       alert("Delete failed");
@@ -109,7 +109,7 @@ const VendorCategory = () => {
 
         {filtered.map((c) => (
           <div
-            key={c.id || c._id}
+            key={c.categoryId || c.id}
             className="bg-white rounded-2xl shadow-sm p-3 flex gap-3"
           >
             <img
@@ -122,7 +122,7 @@ const VendorCategory = () => {
               <div className="flex justify-between">
                 <h3 className="font-semibold text-sm">{c.name}</h3>
                 <button
-                  onClick={() => deleteCategory(c.id || c._id)}
+                  onClick={() => deleteCategory(c.categoryId || c._id)}
                   className="text-red-500"
                 >
                   <Trash2 size={16} />
@@ -135,7 +135,7 @@ const VendorCategory = () => {
 
               <div className="flex gap-3 mt-3">
                 <Link
-                  to={`/vendor/categories/${c.id ?? c._id}/edit`}
+                  to={`/vendor/categories/${c.categoryId ?? c._id}`}
                   className="text-xs flex items-center gap-1 text-green-600"
                 >
                   <Edit size={14} /> Edit

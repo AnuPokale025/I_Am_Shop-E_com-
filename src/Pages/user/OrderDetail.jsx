@@ -277,7 +277,7 @@ const OrderDetail = () => {
               <p className="text-xs text-gray-500">Default Delivery Address</p>
               <p className="font-medium text-gray-900">{addressText}</p>
               <p className="text-xs text-green-600 mt-1">
-                Tap to continue checkout →
+              
               </p>
             </div>
           </div>
@@ -294,7 +294,7 @@ const OrderDetail = () => {
           <div className="flex items-center gap-2">
             <CreditCard />
             <span>
-              {order.paymentMethod === "cod"
+              {order.paymentMethod === "COD"
                 ? "Cash on Delivery"
                 : "Online Payment"}
             </span>

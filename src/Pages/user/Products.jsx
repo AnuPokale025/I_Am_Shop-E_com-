@@ -15,6 +15,7 @@ const Product = () => {
     fetchWishlist();
   }, []);
 
+  /* ================= FETCH WISHLIST ================= */
   const fetchWishlist = async () => {
     try {
       const res = await wishlistAPI.getWishlist();
@@ -35,17 +36,35 @@ const Product = () => {
     }
   };
 
+  /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async () => {
     try {
       const res = await axios.get(
         "https://iamashop-production.up.railway.app/api/products"
       );
+
       setFeaturedProducts(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.error(error);
+      console.error("Product fetch error:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  /* ================= GET IMAGE FROM YOUR BODY ================= */
+  const getProductImage = (product) => {
+    if (!product.images || product.images.length === 0) {
+      return "/placeholder.png";
+    }
+
+    // Try to find primary image
+    const primaryImage = product.images.find((img) => img.primary);
+
+    return (
+      primaryImage?.imageUrl ||
+      product.images[0]?.imageUrl ||
+      "/placeholder.png"
+    );
   };
 
   const handleAddClick = (e, productId) => {
@@ -72,7 +91,7 @@ const Product = () => {
     }
   };
 
-  /* ===== Skeleton Loader ===== */
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 animate-pulse">
@@ -106,9 +125,10 @@ const Product = () => {
             {/* Image */}
             <div className="relative bg-gray-50 p-3 flex justify-center">
               <img
-                src={product.image || "/placeholder.png"}
+                src={getProductImage(product)}
                 alt={product.name}
                 className="h-28 object-contain"
+                onError={(e) => (e.target.src = "/placeholder.png")}
               />
 
               {/* Wishlist */}
@@ -132,21 +152,18 @@ const Product = () => {
                 {product.name}
               </p>
 
-              {/* Delivery */}
               <div className="flex items-center gap-1 text-xs text-green-700 font-semibold mt-1">
                 <Clock className="w-3 h-3" />
                 10–15 mins
               </div>
 
-              {/* Rating */}
               <div className="flex items-center gap-1 mt-1">
                 <Star className="w-3 h-3 text-yellow-400 fill-current" />
                 <span className="text-xs text-gray-500">
-                  {product.rating || 4.5}
+                  4.5
                 </span>
               </div>
 
-              {/* Price + Add */}
               <div className="flex items-center justify-between mt-2">
                 <span className="font-bold text-gray-900">
                   ₹{product.price}
@@ -164,7 +181,7 @@ const Product = () => {
         ))}
       </div>
 
-      {/* Floating Buttons (Mobile) */}
+      {/* Floating Buttons */}
       <div className="fixed bottom-5 right-5 flex flex-col gap-3 md:hidden">
         <Link
           to="/cart"

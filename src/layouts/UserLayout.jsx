@@ -8,6 +8,7 @@ const UserLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [userMenu, setUserMenu] = useState(false);
+  const [Login, setLogin] = useState(false);
 
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -17,6 +18,8 @@ const UserLayout = () => {
     e.preventDefault();
     if (query.trim()) navigate(`/products?q=${query}`);
   };
+
+
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -75,7 +78,7 @@ const UserLayout = () => {
               >
                 <User className="h-6 w-6 text-gray-700" />
                 <span className="hidden md:block text-sm font-medium">
-                  {user?.name?.split(" ")[0] || "Login"}
+                  {user?.name?.split(" ")[0] || "Logout"}
                 </span>
               </button>
 

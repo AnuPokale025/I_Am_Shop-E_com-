@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Trash2, Clock } from "lucide-react";
 import wishlistAPI from "../../api/wishlist.api";
+import apiClient from "../../api/axios";
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -20,30 +21,50 @@ const Wishlist = () => {
       setError("");
 
       const res = await wishlistAPI.getWishlist();
+      const items = res?.items || [];
 
-      const items =
-        res?.items ||
-        res?.wishlist ||
-        res?.data ||
-        res ||
-        [];
+      // 🔥 Fetch product details using productId
+      const productsWithImages = await Promise.all(
+        items.map(async (item) => {
+          try {
+            const productRes = await apiClient.get(
+              `/products/${item.productId}`
+            );
 
-      const mappedItems = items.map((item, index) => {
-        const product = item.product || item.productId || item;
+            const product = productRes.data;
 
-        return {
-          id: item.id || index,
-          productId: product?.id || product?._id,
-          name: product?.productName || product?.name || "Product",
-          image:
-            product?.image ||
-            product?.images?.[0] ||
-            "/placeholder.png",
-          price: Number(product?.price || 0),
-        };
-      });
+            // If product has images array
+            let imageUrl = "/placeholder.png";
 
-      setWishlistItems(mappedItems);
+            if (product?.images?.length > 0) {
+              const imageName = product.images[0]?.imageUrl;
+
+              imageUrl = imageName?.startsWith("http")
+                ? imageName
+                : `https://iamashop-production.up.railway.app/api/products/image/${imageName}`;
+            }
+
+            return {
+              productId: item.productId,
+              name: product?.name || item.productName,
+              price: Number(product?.price || item.price || 0),
+              image: imageUrl,
+              vendorId: item.vendorId,
+            };
+          } catch (err) {
+            console.error("Product fetch failed:", err);
+            return {
+              productId: item.productId,
+              name: item.productName,
+              price: Number(item.price || 0),
+              image: "/placeholder.png",
+              vendorId: item.vendorId,
+            };
+          }
+        })
+      );
+
+      setWishlistItems(productsWithImages);
     } catch (err) {
       console.error("❌ Fetch wishlist failed", err);
       setError("Failed to load wishlist");
@@ -53,11 +74,11 @@ const Wishlist = () => {
   };
 
   /* ================= REMOVE ITEM ================= */
-  const handleRemoveItem = async (itemId, productId) => {
+  const handleRemoveItem = async (productId) => {
     try {
       await wishlistAPI.removeFromWishlist(productId);
       setWishlistItems((prev) =>
-        prev.filter((item) => item.id !== itemId)
+        prev.filter((item) => item.productId !== productId)
       );
     } catch {
       setError("Failed to remove item");
@@ -103,7 +124,6 @@ const Wishlist = () => {
         </div>
       )}
 
-      {/* Empty State */}
       {wishlistItems.length === 0 ? (
         <div className="flex flex-col items-center text-center mt-20 px-6">
           <Heart className="h-16 w-16 text-gray-300 mb-4" />
@@ -122,27 +142,26 @@ const Wishlist = () => {
         </div>
       ) : (
         <>
-          {/* Wishlist Grid */}
+          {/* Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 mt-4">
             {wishlistItems.map((item) => (
               <div
-                key={item.id}
+                key={item.productId}
                 className="bg-white rounded-2xl shadow-sm overflow-hidden"
               >
-                {/* Image */}
                 <div className="relative bg-gray-50 p-4 flex justify-center">
                   <img
                     src={item.image}
                     alt={item.name}
                     className="h-28 object-contain"
+                    onError={(e) =>
+                      (e.target.src = "/placeholder.png")
+                    }
                   />
 
                   <button
                     onClick={() =>
-                      handleRemoveItem(
-                        item.id,
-                        item.productId
-                      )
+                      handleRemoveItem(item.productId)
                     }
                     className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow"
                   >
@@ -150,7 +169,6 @@ const Wishlist = () => {
                   </button>
                 </div>
 
-                {/* Info */}
                 <div className="px-3 py-2">
                   <p className="text-sm font-medium line-clamp-2">
                     {item.name}

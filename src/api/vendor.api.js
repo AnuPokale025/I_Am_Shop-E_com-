@@ -12,9 +12,13 @@ const vendorAPI = {
     }
   },
   // GET CATEGORY BY ID
-  getCategoryById: async (id) => {
-    const res = await apiClient.get(`/categories/${id}`);
-    return res.data;
+    getCategoryById: async (categoryId) => {
+    try {
+      const response = await apiClient.get(`/categories/${categoryId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   },
 
   createCategory: async (categoryData) => {
@@ -26,9 +30,9 @@ const vendorAPI = {
     }
   },
   // UPDATE CATEGORY
-  updateCategory: async (id, payload) => {
+  updateCategory: async (categoryId, payload) => {
     const res = await apiClient.put(
-      `/categories/${id}`,
+      `/categories/${categoryId}`,
       payload,
       {
         headers: {
@@ -164,6 +168,7 @@ const vendorAPI = {
     );
     return res.data;
   },
+ 
 
   // Dashboard Analytics
   // getDashboardData: async () => {

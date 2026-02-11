@@ -17,6 +17,7 @@ const EditProduct = () => {
     stock: '',
     discount: '',
     brand: '',
+    slug: '',
     images: []
   });
   const [categories, setCategories] = useState([]);
@@ -33,7 +34,7 @@ const EditProduct = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError(''); 
       const response = await vendorAPI.getProductById(id);
       setProduct(response);
       setFormData({
@@ -41,10 +42,11 @@ const EditProduct = () => {
         description: response.description || '',
         category: response.category || '',
         price: response.price || '',
-        originalPrice: response.originalPrice || '',
-        stock: response.stock || '',
+        originalPrice: response.mrp || '',
+        stock: response.quantity || '',
         discount: response.discount || '',
         brand: response.brand || '',
+        slug: response.slug || '',
         images: response.images || []
       });
       setImagePreviews(response.images || []);
@@ -137,9 +139,10 @@ const handleSubmit = async (e) => {
     formDataToSend.append('name', formData.name);
     formDataToSend.append('description', formData.description);
     formDataToSend.append('category', formData.category);
+    formDataToSend.append('slug', formData.slug || '');
     formDataToSend.append('price', Number(formData.price));
-    formDataToSend.append('originalPrice', Number(formData.originalPrice || 0));
-    formDataToSend.append('stock', Number(formData.stock));
+    formDataToSend.append('originalPrice', Number(formData.mrp || 0));
+    formDataToSend.append('stock', Number(formData.quantity));
     formDataToSend.append('discount', Number(formData.discount || 0));
     formDataToSend.append('brand', formData.brand || '');
 
@@ -310,8 +313,8 @@ const handleSubmit = async (e) => {
                 </label>
                 <input
                   type="number"
-                  name="stock"
-                  value={formData.stock}
+                  name="quantity"
+                  value={formData.quantity}
                   onChange={handleChange}
                   required
                   min="0"
@@ -365,7 +368,7 @@ const handleSubmit = async (e) => {
                 <input
                   type="number"
                   name="originalPrice"
-                  value={formData.originalPrice}
+                  value={formData.mrp}
                   onChange={handleChange}
                   min="0"
                   step="0.01"

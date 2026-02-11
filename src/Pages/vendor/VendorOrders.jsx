@@ -154,7 +154,7 @@ const VendorOrders = () => {
               "all",
               "processing",
               "shipped",
-              "completed",
+              "confirmed",
               "cancelled",
             ].map((s) => (
               <button

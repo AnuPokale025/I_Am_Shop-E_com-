@@ -1,4 +1,5 @@
 import apiClient from "./axios";
+import Cookies from "js-cookie";
 
 const checkoutAPI = {
   /* ================= GET CART FOR CHECKOUT ================= */
@@ -10,17 +11,34 @@ const checkoutAPI = {
 
   /* ================= PLACE ORDER ================= */
   placeOrder: async ({
-    items,
+    
     deliveryCharge,
     paymentMode,
     estimatedDelivery,
   }) => {
-    const res = await apiClient.post("/orders", {
-      items,
-      deliveryCharge,   // ✅ FIXED
-      paymentMode,
-      estimatedDelivery,
-    });
+    // Ensure we explicitly attach the same token used in the axios interceptor
+    const token =
+      Cookies.get("auth_token") 
+     
+
+    const res = await apiClient.post(
+      "/orders",
+      {
+        
+        deliveryCharge,
+        paymentMode,
+        estimatedDelivery,
+      },
+      token
+        ? {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        : undefined
+    );
+
+    console.log("Order placed:", res.data);
     return res.data;
   },
 

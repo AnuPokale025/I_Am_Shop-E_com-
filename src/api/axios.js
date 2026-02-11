@@ -21,28 +21,13 @@ API.interceptors.request.use(
     });
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('✅ Authorization header added:', `Bearer ${token.substring(0, 20)}...`);
+      console.log('✅ Authorization header added:', `Bearer ${token}`);
     } else {
       console.warn('⚠️ WARNING: No token found in cookies! User might not be authenticated.');
     }
     return config;
   },
   (error) => Promise.reject(error)
-);
-
-/* ==================== RESPONSE INTERCEPTOR ==================== */
-API.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 403) {
-      console.error('❌ 403 Forbidden - Authorization failed');
-      console.error('Response data:', error.response?.data);
-      console.error('Response headers:', error.response?.headers);
-      console.error('Request URL:', error.config?.url);
-      console.error('Request method:', error.config?.method);
-    }
-    return Promise.reject(error);
-  }
 );
 
 /* ==================== AUTH APIs ==================== */
@@ -146,6 +131,7 @@ export const createOrder = (data) => API.post("/orders", data);
 export const getOrderById = (id) => API.get(`/orders/${id}`);
 export const updateOrderStatus = (id, status) =>
   API.patch(`/orders/${id}/status`, { status });
+export const orderCheckout = (data) => API.post("/orders", data);
 
 /* ==================== ADMIN APIs ==================== */
 export const adminAPI = {

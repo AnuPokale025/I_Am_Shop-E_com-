@@ -11,7 +11,7 @@ const productAPI = {
       throw error.response?.data || error;
     }
   },
-
+ 
   // Get product by ID
   getProductById: async (productId) => {
     try {
