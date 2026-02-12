@@ -15,17 +15,33 @@ const VendorProducts = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
+  const [featuredProducts, setFeaturedProducts] = useState([]);
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const getProductImage = (product) => {
+    if (!product.images || product.images.length === 0) {
+      return "/placeholder.png";
+    }
+
+    // Try to find primary image
+    const primaryImage = product.images.find((img) => img.primary);
+
+    return (
+      primaryImage?.imageUrl ||
+      product.images[0]?.imageUrl ||
+      "/placeholder.png"
+    );
+  };
 
   /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const response = await vendorAPI.getProducts();
-
+      console.log("Products response:", response);
       // Always ensure array
       if (Array.isArray(response)) {
         setProducts(response);
@@ -47,7 +63,7 @@ const VendorProducts = () => {
   const deleteProduct = async (id) => {
     if (!id) return;
 
-    if (!window.confirm("Delete this product?")) return;
+    // if (!window.confirm("Delete this product?")) return;
 
     try {
       await vendorAPI.deleteProduct(id);
@@ -118,14 +134,11 @@ const VendorProducts = () => {
             className="bg-white rounded-2xl shadow-sm p-3 flex gap-3"
           >
             <img
-              src={p?.image || "/placeholder.png"}
-              alt={p?.name || "Product"}
-              className="w-20 h-20 rounded-xl object-cover"
-              onError={(e) => {
-                e.target.src = "/placeholder.png";
-              }}
+              src={getProductImage(p)}
+              alt={p?.name}
+              className="h-28 object-contain"
+              onError={(e) => (e.target.src = "/placeholder.png")}
             />
-
             <div className="flex-1">
               <div className="flex justify-between">
                 <h3 className="font-semibold text-sm">
@@ -141,7 +154,7 @@ const VendorProducts = () => {
               </div>
 
               <p className="text-xs text-gray-500">
-                {p?.category || "Uncategorized"}
+                {p?.description || "decription"}
               </p>
 
               <div className="flex items-center justify-between mt-2">
@@ -150,18 +163,17 @@ const VendorProducts = () => {
                 </span>
 
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    (p?.stock ?? 0) > 0
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-600"
-                  }`}
+                  className={`text-xs px-2 py-1 rounded-full ${(p?.quantity ?? 0) > 0
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-600"
+                    }`}
                 >
-                  {(p?.stock ?? 0) > 0 ? "In Stock" : "Out"}
+                  {(p?.quantity ?? 0) > 0 ? "In Stock" : "Out"}
                 </span>
               </div>
 
               <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-                <span>Stock: {p?.stock ?? 0}</span>
+                <span>Stock: {p?.quantity ?? 0}</span>
                 <span className="flex items-center gap-1">
                   <TrendingUp size={14} className="text-green-500" />
                   {p?.sales ?? 0} sold

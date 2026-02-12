@@ -8,7 +8,8 @@ import {
   ShoppingCart,
   TrendingUp,
 } from "lucide-react";
-import apiClient from "../../api/axios";
+
+import productAPI from "../../api/product.api";
 import cartAPI from "../../api/cart.api";
 import { useCart } from "../../context/CartContext";
 
@@ -22,34 +23,40 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
 
-  /* ================= RELATED PRODUCTS ================= */
   const [relatedProducts, setRelatedProducts] = useState([]);
 
-  /* ================= REVIEWS ================= */
   const [reviews, setReviews] = useState([]);
   const [reviewPage, setReviewPage] = useState(0);
   const [reviewTotalPages, setReviewTotalPages] = useState(1);
+
   const [newReview, setNewReview] = useState({
     rating: 5,
     comment: "",
   });
 
-  /* ================= FETCH PRODUCT ================= */
   useEffect(() => {
     fetchProduct();
   }, [id]);
 
+  /* ================= FETCH PRODUCT ================= */
   const fetchProduct = async () => {
     try {
-      const res = await apiClient.get(`/products/${id}`);
-      const data = res.data;
+      setLoading(true);
+
+      const data = await productAPI.getProductById(id);
       setProduct(data);
 
       if (data.images?.length > 0) {
         setSelectedImage(data.images[0].imageUrl);
       }
 
-      fetchRelatedProducts(data.categoryId);
+      // if (data.categoryId) {
+      //   const related = await productAPI.getRelatedProducts(
+      //     data.categoryId
+      //   );
+      //   setRelatedProducts(related.content || related);
+      // }
+
       fetchReviews(0);
     } catch (err) {
       console.error(err);
@@ -58,34 +65,13 @@ const ProductDetails = () => {
     }
   };
 
-  /* ================= FETCH RELATED PRODUCTS ================= */
-  const fetchRelatedProducts = async (categoryId) => {
-    if (!categoryId) return;
-
-    try {
-      const res = await apiClient.get("/products/related", {
-        params: {
-          categoryId,
-          page: 0,
-          size: 4,
-        },
-      });
-
-      setRelatedProducts(res.data.content || res.data || []);
-    } catch (err) {
-      console.error("Related products error:", err);
-    }
-  };
-
   /* ================= FETCH REVIEWS ================= */
   const fetchReviews = async (page = 0) => {
     try {
-      const res = await apiClient.get(`/products/${id}/reviews`, {
-        params: { page, size: 5 },
-      });
+      const data = await productAPI.getFeedback(id, page, 5);
 
-      setReviews(res.data.content || res.data || []);
-      setReviewTotalPages(res.data.totalPages || 1);
+      setReviews(data.content || data);
+      setReviewTotalPages(data.totalPages || 1);
       setReviewPage(page);
     } catch (err) {
       console.error("Review fetch error:", err);
@@ -100,10 +86,10 @@ const ProductDetails = () => {
     }
 
     try {
-      await apiClient.post(`/products/${id}/reviews`, newReview);
+      await productAPI.addFeedback(id, newReview);
       setNewReview({ rating: 5, comment: "" });
       fetchReviews(0);
-    } catch (err) {
+    } catch {
       alert("Failed to submit review");
     }
   };
@@ -137,11 +123,14 @@ const ProductDetails = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* HEADER */}
       <div className="bg-white p-4 flex items-center gap-3 shadow sticky top-0 z-50">
-        <ArrowLeft onClick={() => navigate(-1)} className="cursor-pointer" />
+        <ArrowLeft
+          onClick={() => navigate(-1)}
+          className="cursor-pointer"
+        />
         <h1 className="font-bold">Product Details</h1>
       </div>
 
-      {/* ================= MAIN SECTION ================= */}
+      {/* MAIN SECTION */}
       <div className="max-w-6xl mx-auto p-4 grid md:grid-cols-2 gap-8">
         {/* IMAGE */}
         <div className="bg-white rounded-2xl p-6">
@@ -155,7 +144,9 @@ const ProductDetails = () => {
               <img
                 key={img.id}
                 src={img.imageUrl}
-                onClick={() => setSelectedImage(img.imageUrl)}
+                onClick={() =>
+                  setSelectedImage(img.imageUrl)
+                }
                 className={`h-16 w-16 object-contain border rounded-lg cursor-pointer ${
                   selectedImage === img.imageUrl
                     ? "border-green-600"
@@ -168,8 +159,12 @@ const ProductDetails = () => {
 
         {/* INFO */}
         <div className="bg-white rounded-2xl p-6 space-y-4">
-          <h2 className="text-2xl font-bold">{product.name}</h2>
-          <p className="text-gray-600">{product.description}</p>
+          <h2 className="text-2xl font-bold">
+            {product.name}
+          </h2>
+          <p className="text-gray-600">
+            {product.description}
+          </p>
 
           <div className="flex items-center gap-3">
             <span className="text-3xl font-bold text-green-600">
@@ -180,24 +175,26 @@ const ProductDetails = () => {
                 ₹{product.mrp}
               </span>
             )}
-            {product.discount > 0 && (
-              <span className="text-red-500 font-semibold">
-                {product.discount}% OFF
-              </span>
-            )}
           </div>
 
+          {/* Quantity */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              onClick={() =>
+                setQuantity(Math.max(1, quantity - 1))
+              }
               className="p-2 border rounded"
             >
               <Minus />
             </button>
+
             <span>{quantity}</span>
+
             <button
               onClick={() =>
-                setQuantity(Math.min(product.quantity, quantity + 1))
+                setQuantity(
+                  Math.min(product.quantity || 10, quantity + 1)
+                )
               }
               className="p-2 border rounded"
             >
@@ -215,7 +212,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* ================= RELATED PRODUCTS ================= */}
+      {/* RELATED PRODUCTS */}
       {relatedProducts.length > 0 && (
         <div className="max-w-6xl mx-auto px-4 mt-12">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -226,24 +223,35 @@ const ProductDetails = () => {
             {relatedProducts.map((p) => (
               <div
                 key={p.id}
-                onClick={() => navigate(`/product/${p.id}`)}
+                onClick={() =>
+                  navigate(`/product/${p.id}`)
+                }
                 className="bg-white p-4 rounded-xl cursor-pointer"
               >
                 <img
-                  src={p.images?.[0]?.imageUrl || "/placeholder.png"}
+                  src={
+                    p.images?.[0]?.imageUrl ||
+                    "/placeholder.png"
+                  }
                   className="h-32 w-full object-contain mb-2"
                 />
-                <p className="font-semibold text-sm">{p.name}</p>
-                <p className="font-bold text-green-600">₹{p.price}</p>
+                <p className="font-semibold text-sm">
+                  {p.name}
+                </p>
+                <p className="font-bold text-green-600">
+                  ₹{p.price}
+                </p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* ================= REVIEWS ================= */}
+      {/* REVIEWS */}
       <div className="max-w-4xl mx-auto px-4 mt-12">
-        <h2 className="text-xl font-bold mb-4">Reviews</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Reviews
+        </h2>
 
         {/* Add Review */}
         <div className="bg-white p-4 rounded-xl mb-6">
@@ -252,7 +260,10 @@ const ProductDetails = () => {
               <Star
                 key={r}
                 onClick={() =>
-                  setNewReview({ ...newReview, rating: r })
+                  setNewReview({
+                    ...newReview,
+                    rating: r,
+                  })
                 }
                 className={`cursor-pointer ${
                   r <= newReview.rating
@@ -266,7 +277,10 @@ const ProductDetails = () => {
           <textarea
             value={newReview.comment}
             onChange={(e) =>
-              setNewReview({ ...newReview, comment: e.target.value })
+              setNewReview({
+                ...newReview,
+                comment: e.target.value,
+              })
             }
             className="w-full border rounded-lg p-2"
             placeholder="Write your review..."
@@ -282,8 +296,14 @@ const ProductDetails = () => {
 
         {/* Review List */}
         {reviews.map((r) => (
-          <div key={r.id} className="bg-white p-4 rounded-xl mb-3">
-            <p className="font-semibold">{r.userName}</p>
+          <div
+            key={r.id}
+            className="bg-white p-4 rounded-xl mb-3"
+          >
+            <p className="font-semibold">
+              {r.userName}
+            </p>
+
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -296,7 +316,10 @@ const ProductDetails = () => {
                 />
               ))}
             </div>
-            <p className="text-sm mt-1">{r.comment}</p>
+
+            <p className="text-sm mt-1">
+              {r.comment}
+            </p>
           </div>
         ))}
 
@@ -304,16 +327,24 @@ const ProductDetails = () => {
         <div className="flex justify-center gap-4 mt-4">
           <button
             disabled={reviewPage === 0}
-            onClick={() => fetchReviews(reviewPage - 1)}
+            onClick={() =>
+              fetchReviews(reviewPage - 1)
+            }
           >
             Prev
           </button>
+
           <span>
             {reviewPage + 1} / {reviewTotalPages}
           </span>
+
           <button
-            disabled={reviewPage + 1 >= reviewTotalPages}
-            onClick={() => fetchReviews(reviewPage + 1)}
+            disabled={
+              reviewPage + 1 >= reviewTotalPages
+            }
+            onClick={() =>
+              fetchReviews(reviewPage + 1)
+            }
           >
             Next
           </button>

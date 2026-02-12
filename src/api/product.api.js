@@ -1,71 +1,60 @@
-import apiClient from './axios';
+import apiClient from "./axios";
 
-// Product API service (shared between user and vendor)
 const productAPI = {
-  // Get all products (for user browsing)
   getAllProducts: async () => {
-    try {
-      const response = await apiClient.get('/products');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
- 
-  // Get product by ID
-  getProductById: async (productId) => {
-    try {
-      const response = await apiClient.get(`/products/${productId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const res = await apiClient.get("/products");
+    return res.data;
   },
 
-  // Search products
+  getProductById: async (id) => {
+    const res = await apiClient.get(`/products/${id}`);
+    return res.data;
+  },
+
   searchProducts: async (query) => {
-    try {
-      const response = await apiClient.get(`/products/search?q=${query}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const res = await apiClient.get(`/products/search`, {
+      params: { q: query },
+    });
+    return res.data;
   },
 
-  // Get featured products
   getFeaturedProducts: async () => {
-    try {
-      const response = await apiClient.get('/products/featured');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const res = await apiClient.get("/products/featured");
+    return res.data;
   },
 
-  // Get products by category
   getProductsByCategory: async (categoryId) => {
-    try {
-      const response = await apiClient.get(`/products/category/${categoryId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    const res = await apiClient.get(`/products/category/${categoryId}`);
+    return res.data;
   },
 
-  // Get products by subcategory
   getProductsBySubcategory: async (subcategoryId) => {
-    try {
-      const response = await apiClient.get(`/products/subcategory/${subcategoryId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  }
+    const res = await apiClient.get(`/products/subcategory/${subcategoryId}`);
+    return res.data;
+  },
+
+  // getRelatedProducts: async (categoryId) => {
+  //   const res = await apiClient.get("/products/related", {
+  //     params: { categoryId, page: 0, size: 4 },
+  //   });
+  //   return res.data;
+  // },
+
+  getFeedback: async (productId, page = 0, size = 5) => {
+    const res = await apiClient.get(
+      `/products/${productId}/feedback`,
+      { params: { page, size } }
+    );
+    return res.data;
+  },
+
+  addFeedback: async (productId, feedbackData) => {
+    const res = await apiClient.post(
+      `/products/${productId}/feedback`,
+      feedbackData
+    );
+    return res.data;
+  },
 };
-
-
-
-
-
 
 export default productAPI;

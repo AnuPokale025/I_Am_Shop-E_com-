@@ -42,7 +42,32 @@ const vendorAPI = {
     );
     return res.data;
   },
+// image upadte
 
+updateImage: async (productId, imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  const res = await apiClient.put(`/products/${productId}/image`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+},
+
+//AddImage
+addImage: async (productId, imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+  
+  const res = await apiClient.post(`/images/${productId}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+},
   deleteCategory: async (categoryId) => {
     try {
       const response = await apiClient.delete(`/categories/${categoryId}`);

@@ -73,37 +73,90 @@ const userAPI = {
   /* =========================
      ORDERS
   ========================= */
+  
   // GET all orders of user
   getOrders: async () => {
-    const res = await apiClient.get("/orders/user");
-    return res.data;
+    try {
+      const res = await apiClient.get("/orders/user");
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   },
 
   // GET order by id
   getOrderById: async (orderId) => {
-    const res = await apiClient.get(`/orders/user/${orderId}`);
-    return res.data;
+    try {
+      const res = await apiClient.get(`/orders/user/${orderId}`);
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   },
 
-  // 🔥 CREATE ORDER (POST /api/orders)
+  // CREATE ORDER (POST /api/orders)
   createOrder: async (body) => {
-    const res = await apiClient.post("/orders", body);
-    return res.data;
+    try {
+      const res = await apiClient.post("/orders", body);
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   },
 
-  // 🔁 UPDATE ORDER STATUS (PATCH)
+  // UPDATE ORDER STATUS (PATCH)
   updateOrderStatus: async (orderId, status) => {
-    const res = await apiClient.patch(
-      `/orders/user/${orderId}/status`,
-      null,
-      {
-        params: { status },
-      }
-    );
-    return res.data;
+    try {
+      const res = await apiClient.patch(
+        `/orders/${orderId}/status`,
+        null,
+        {
+          params: { status },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   },
 
-  
+  // CANCEL ORDER - Multiple API endpoint attempts
+  cancelOrder: async (orderId) => {
+    try {
+      // Try primary endpoint: PATCH with status=CANCELLED
+      const res = await apiClient.patch(
+        `/orders/${orderId}/status`,
+        null,
+        {
+          params: { status: "CANCELLED" },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      // If primary fails, try alternative endpoint: POST /orders/:id/cancel
+      try {
+        const res = await apiClient.post(`/orders/${orderId}/cancel`);
+        return res.data;
+      } catch (altError) {
+        // If that fails too, try PUT with body
+        try {
+          const res = await apiClient.put(`/orders/${orderId}`, {
+            orderStatus: "CANCELLED",
+          });
+          return res.data;
+        } catch (finalError) {
+          // If all fail, try DELETE
+          try {
+            const res = await apiClient.delete(`/orders/${orderId}`);
+            return res.data;
+          } catch (deleteError) {
+            throw error.response?.data || error;
+          }
+        }
+      }
+    }
+  },
+
   /* =========================
      CATEGORIES
   ========================= */
@@ -133,7 +186,9 @@ export const removeAddress = userAPI.removeAddress;
 
 export const getOrders = userAPI.getOrders;
 export const getOrderById = userAPI.getOrderById;
-export const placeOrder = userAPI.placeOrder;
+export const createOrder = userAPI.createOrder;
+export const updateOrderStatus = userAPI.updateOrderStatus;
+export const cancelOrder = userAPI.cancelOrder;
 
 export const getCategories = userAPI.getCategories;
 

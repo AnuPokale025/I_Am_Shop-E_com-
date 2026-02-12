@@ -11,12 +11,29 @@ const AdminProduct = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
 
   const [activeCategory, setActiveCategory] = useState("all");
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  /* ================= GET IMAGE FROM YOUR BODY ================= */
+  const getProductImage = (product) => {
+    if (!product.images || product.images.length === 0) {
+      return "/placeholder.png";
+    }
+
+    // Try to find primary image
+    const primaryImage = product.images.find((img) => img.primary);
+
+    return (
+      primaryImage?.imageUrl ||
+      product.images[0]?.imageUrl ||
+      "/placeholder.png"
+    );
+  };
 
   const fetchData = async () => {
     try {
@@ -64,11 +81,10 @@ const AdminProduct = () => {
         <div className="flex gap-2 overflow-x-auto px-4 pb-3">
           <button
             onClick={() => setActiveCategory("all")}
-            className={`px-4 py-1 rounded-full text-sm whitespace-nowrap ${
-              activeCategory === "all"
-                ? "bg-white text-green-600"
-                : "bg-green-500/30"
-            }`}
+            className={`px-4 py-1 rounded-full text-sm whitespace-nowrap ${activeCategory === "all"
+              ? "bg-white text-green-600"
+              : "bg-green-500/30"
+              }`}
           >
             All
           </button>
@@ -77,11 +93,10 @@ const AdminProduct = () => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-1 rounded-full text-sm whitespace-nowrap ${
-                activeCategory === cat.id
-                  ? "bg-white text-green-600"
-                  : "bg-green-500/30"
-              }`}
+              className={`px-4 py-1 rounded-full text-sm whitespace-nowrap ${activeCategory === cat.id
+                ? "bg-white text-green-600"
+                : "bg-green-500/30"
+                }`}
             >
               {cat.name}
             </button>
@@ -104,9 +119,10 @@ const AdminProduct = () => {
             >
               <div className="relative">
                 <img
-                  src={product.image}
+                  src={getProductImage(product)}
                   alt={product.name}
-                  className="h-36 w-full object-cover"
+                  className="h-28 object-contain pl-10"
+                  onError={(e) => (e.target.src = "/placeholder.png")}
                 />
 
                 {/* Rating */}
@@ -121,11 +137,13 @@ const AdminProduct = () => {
               <div className="p-3">
                 <h3 className="text-sm font-medium line-clamp-2">
                   {product.name}
+                  {product.description}
                 </h3>
 
                 <div className="mt-2 flex items-center justify-between">
                   <span className="font-bold text-gray-900">
-                    ₹{product.price}
+                    ₹{product.price} <br />
+                    <h1 className="line-through text-gray-100"> ₹{product.mrp} </h1>
                   </span>
 
                   <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">

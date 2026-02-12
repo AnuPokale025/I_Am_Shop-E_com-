@@ -4,7 +4,6 @@ import { Search, ShoppingCart, User, Heart, MapPin, Filter, Star, Truck, Shield,
 import { categoryData } from '../Categories';
 import wishlistAPI from '../../api/wishlist.api';
 
-
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
@@ -82,6 +81,21 @@ const Home = () => {
       setLoading(false);
     }
   };
+  /* ================= GET IMAGE FROM YOUR BODY ================= */
+  const getProductImage = (product) => {
+    if (!product.images || product.images.length === 0) {
+      return "/placeholder.png";
+    }
+
+    // Try to find primary image
+    const primaryImage = product.images.find((img) => img.primary);
+
+    return (
+      primaryImage?.imageUrl ||
+      product.images[0]?.imageUrl ||
+      "/placeholder.png"
+    );
+  };
   const fetchWishlist = async () => {
     try {
       const res = await wishlistAPI.getWishlist();
@@ -154,19 +168,7 @@ const Home = () => {
     <div className="min-h-screen bg-gray-50">
 
       <div
-        className="relative text-white"
-        style={{
-          backgroundImage: `
-      linear-gradient(
-        rgba(34,197,94,0.85),
-        rgba(22,163,74,0.85)
-      ),
-      url('/hero-grocery-banner.png')
-    `,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
+        
       >
         <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
           <div className="text-center max-w-3xl mx-auto">
@@ -259,7 +261,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="image1">
         <img src='/hero-grocery-banner.png' alt="Hero Banner" className="w-full h-full p-2 object-cover" />
       </div>
@@ -437,15 +439,17 @@ const Home = () => {
                 to={`/product/${product.id}`}
                 className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
               >
-                
-                
-                <div className="relative aspect-square overflow-hidden bg-gray-50">
+
+
+                {/* Image */}
+                <div className="relative bg-gray-50 p-3 flex justify-center">
                   <img
-                    src={product.image}
+                    src={getProductImage(product)}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="h-28 object-contain"
+                    onError={(e) => (e.target.src = "/placeholder.png")}
                   />
-                  
+
                   {product.discount > 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-md">
                       {product.discount}% OFF
