@@ -21,35 +21,26 @@ export const AuthProvider = ({ children }) => {
   const [email, setEmail] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  /* 🔍 Token validation (basic) */
-  const isTokenValid = (token) => {
-    return !!token;
+  const isTokenValid = (token) => !!token;
+
+  const safeParse = (value) => {
+    try {
+      if (!value || value === "undefined") return null;
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
   };
 
-  /* 🔄 Restore auth on refresh */
+  /* 🔄 Restore session */
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedRole = localStorage.getItem("role");
-    const storedEmail = localStorage.getItem("email");
     const storedToken = Cookies.get("auth_token");
 
-    if (
-      storedUser &&
-      storedRole &&
-      storedEmail &&
-      storedToken &&
-      isTokenValid(storedToken)
-    ) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setRole(storedRole);
-        setEmail(storedEmail);
-        setToken(storedToken);
-      } catch (err) {
-        clearAuth();
-      }
-    } else {
-      clearAuth();
+    if (storedToken && isTokenValid(storedToken)) {
+      setToken(storedToken);
+      setUser(safeParse(localStorage.getItem("user")));
+      setRole(localStorage.getItem("role"));
+      setEmail(localStorage.getItem("email"));
     }
 
     setLoading(false);
@@ -63,38 +54,22 @@ export const AuthProvider = ({ children }) => {
     setEmail(userEmail);
 
     Cookies.set("auth_token", userToken, { expires: 7, path: "/" });
+
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("role", userRole);
     localStorage.setItem("email", userEmail);
   };
 
-  /* 🚪 Logout */
   const logout = () => {
-    clearAuth();
-    navigate("/login");
-  };
-
-  /* 🧹 Clear everything */
-  const clearAuth = () => {
     Cookies.remove("auth_token", { path: "/" });
-
-    localStorage.removeItem("user");
-    localStorage.removeItem("role");
-    localStorage.removeItem("email");
+    localStorage.clear();
 
     setUser(null);
     setToken(null);
     setRole(null);
     setEmail(null);
-  };
 
-  /* 🔐 Helpers */
-  const isAuthenticated = () => {
-    return !!token && isTokenValid(token);
-  };
-
-  const hasRole = (requiredRole) => {
-    return role === requiredRole;
+    navigate("/login", { replace: true });
   };
 
   const value = {
@@ -103,10 +78,9 @@ export const AuthProvider = ({ children }) => {
     role,
     email,
     loading,
+    isAuthenticated: !!token,   // ✅ IMPORTANT CHANGE
     login,
     logout,
-    isAuthenticated,
-    hasRole,
   };
 
   return (

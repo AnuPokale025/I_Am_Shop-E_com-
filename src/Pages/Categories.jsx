@@ -5,14 +5,40 @@ import BannerImg from "../assets/new/banner.jpg";
 import BannerImg2 from "../assets/new/ban1.jpg";
 import BannerImg3 from "../assets/new/ban2.jpg";
 
+// Category Images
+import ataImg from "../assets/categoriesItem/ata.jpg";
+import babyCareImg from "../assets/categoriesItem/baby care.jpg";
+import bakeryImg from "../assets/categoriesItem/bakery.jpg";
+import breakfastImg from "../assets/categoriesItem/breakfast instant food.jpg";
+import chipsImg from "../assets/categoriesItem/chips.jpg";
+import cleaningImg from "../assets/categoriesItem/cleaning essentials.jpg";
+import coldDrinkImg from "../assets/categoriesItem/cold-drink.jpg";
+import homeOfficeImg from "../assets/categoriesItem/home and office.jpg";
+import masalaImg from "../assets/categoriesItem/masala.jpg";
+import organicImg from "../assets/categoriesItem/organic.jpg";
+import petImg from "../assets/categoriesItem/pet.jpg";
+import saucesImg from "../assets/categoriesItem/sauces.jpg";
+
 const bannerImages = [
-  
   { id: 1, src: BannerImg2, alt: "Banner 2" },
   { id: 2, src: BannerImg3, alt: "Banner 3" },
 ];
 
 // Export categories for use in other components
-export const categoryData = []; // Will be populated from API
+export const categoryData = [
+  { id: 1, name: "Atta, Rice & Dal", image: ataImg, slug: "atta-rice-dal" },
+  { id: 2, name: "Baby Care", image: babyCareImg, slug: "baby-care" },
+  { id: 3, name: "Bakery & Biscuits", image: bakeryImg, slug: "bakery-biscuits" },
+  { id: 4, name: "Breakfast & Instant Food", image: breakfastImg, slug: "breakfast-instant-food" },
+  { id: 5, name: "Chips & Munchies", image: chipsImg, slug: "chips-munchies" },
+  { id: 6, name: "Cleaning Essentials", image: cleaningImg, slug: "cleaning-essentials" },
+  { id: 7, name: "Cold Drinks & Juices", image: coldDrinkImg, slug: "cold-drinks-juices" },
+  { id: 8, name: "Home & Office", image: homeOfficeImg, slug: "home-office" },
+  { id: 9, name: "Masala, Oil & More", image: masalaImg, slug: "masala-oil-more" },
+  { id: 10, name: "Organic & Premium", image: organicImg, slug: "organic-premium" },
+  { id: 11, name: "Pet Care", image: petImg, slug: "pet-care" },
+  { id: 12, name: "Sauces & Spreads", image: saucesImg, slug: "sauces-spreads" },
+];
 
 const Categories = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -27,7 +53,18 @@ const Categories = () => {
         const response = await fetch('https://iamashop-production.up.railway.app/api/categories');
         if (response.ok) {
           const data = await response.json();
-          setCategories(Array.isArray(data) ? data : []);
+          const categoriesArray = Array.isArray(data) ? data : [];
+
+          const mergedCategories = categoriesArray.map(apiCat => {
+            const localCat = categoryData.find(c => c.name === apiCat.name || c.slug === apiCat.slug);
+            return {
+              ...apiCat,
+              image: apiCat.image || localCat?.image,
+              img: apiCat.img || localCat?.image
+            };
+          });
+
+          setCategories(mergedCategories);
         } else {
           setCategories([]);
         }
@@ -45,7 +82,7 @@ const Categories = () => {
   // Auto-rotate banner images every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
+      setCurrentImageIndex((prevIndex) =>
         prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
       );
     }, 5000);
@@ -54,13 +91,13 @@ const Categories = () => {
   }, []);
 
   const goToPrevious = () => {
-    setCurrentImageIndex(prevIndex => 
+    setCurrentImageIndex(prevIndex =>
       prevIndex === 0 ? bannerImages.length - 1 : prevIndex - 1
     );
   };
 
   const goToNext = () => {
-    setCurrentImageIndex(prevIndex => 
+    setCurrentImageIndex(prevIndex =>
       prevIndex === bannerImages.length - 1 ? 0 : prevIndex + 1
     );
   };
@@ -74,7 +111,7 @@ const Categories = () => {
       {/* Banner Carousel Section */}
       <div className="relative w-full max-w-6xl mx-auto mb-8 m-2">
         <div className="overflow-hidden rounded-xl">
-          <div 
+          <div
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
@@ -89,23 +126,23 @@ const Categories = () => {
             ))}
           </div>
         </div>
-        
+
         {/* Navigation Arrows */}
-        <button 
+        <button
           onClick={goToPrevious}
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-opacity duration-300"
           aria-label="Previous image"
         >
           &#8249;
         </button>
-        <button 
+        <button
           onClick={goToNext}
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-opacity duration-300"
           aria-label="Next image"
         >
           &#8250;
         </button>
-        
+
         {/* Indicators */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
           {bannerImages.map((_, index) => (
@@ -118,7 +155,7 @@ const Categories = () => {
           ))}
         </div>
       </div>
-      
+
       <section className="mx-auto max-w-7xl px-4 py-8">
         <h2 className="mb-6 text-xl font-semibold">Shop by Category</h2>
 

@@ -9,6 +9,7 @@ const Product = () => {
   const [loading, setLoading] = useState(true);
   const [wishlistIds, setWishlistIds] = useState([]);
   const navigate = useNavigate();
+  // const { categoryId, subId } = useParams();
 
   useEffect(() => {
     fetchProducts();

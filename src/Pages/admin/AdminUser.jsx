@@ -43,10 +43,10 @@ const AdminUser = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <Loader2 className="w-10 h-10 text-green-600 animate-spin" />
-        <p className="mt-3 text-gray-600 font-medium">
-          
-        </p>
+        {/* <Loader2 className="w-10 h-10 text-green-600 animate-spin" /> */}
+         <div className="min-h-screen flex items-center justify-center  text-gray-500">
+        Loading customers...
+      </div>
       </div>
     );
   }

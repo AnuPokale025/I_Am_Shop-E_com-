@@ -35,7 +35,9 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <p className="p-6"></p>;
+  if (loading) return  <div className="min-h-screen flex items-center justify-center  text-gray-500">
+        Loading dashboard...
+      </div>
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (

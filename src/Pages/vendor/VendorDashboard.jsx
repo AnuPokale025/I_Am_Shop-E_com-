@@ -53,7 +53,7 @@ const VendorDashboard = () => {
   };
 
   if (loading) {
-    return <div className="p-10 text-center"></div>;
+    return <div className="min-h-screen flex items-center justify-center text-gray-500"> Loading dashboard...</div>;
   }
 
   return (
@@ -89,6 +89,7 @@ const VendorDashboard = () => {
           icon={Package}
         />
       </div>
+      
 
       {/* QUICK ACTIONS */}
       <div className="flex gap-3 overflow-x-auto mb-6">

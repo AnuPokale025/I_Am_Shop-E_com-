@@ -54,6 +54,8 @@ import AdminVendor from "./Pages/admin/AdminVendor";
 import AdminProduct from "./Pages/admin/AdminProduct";
 import VendorCategory from "./Pages/vendor/VendorCategory";
 import AddCategory from "./Pages/vendor/AddCategory";
+import SearchProducts from "./Pages/user/SearchProduct";
+import SubCategory from "./Pages/user/Subcategory";
 
 
 
@@ -87,6 +89,8 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/categories" element={<Category />} />
                   <Route path="/category/:id" element={<Category />} />
+                  <Route path="/search" element={<SearchProducts />} />
+                  <Route path="/subcategories" element={<SubCategory />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/cart" element={<Cart />} />

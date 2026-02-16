@@ -125,7 +125,7 @@ const Orders = () => {
       console.error("Cancel order error:", err);
       setError(
         err?.message ||
-          "Failed to cancel order. Please contact support if the issue persists."
+        "Failed to cancel order. Please contact support if the issue persists."
       );
     } finally {
       setCancellingOrder(false);
@@ -224,16 +224,16 @@ const Orders = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-green-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="relative">
+          {/* <div className="relative">
             <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
             <div
               className="absolute inset-0 w-16 h-16 border-4 border-green-300 border-b-transparent rounded-full animate-spin"
               style={{ animationDirection: "reverse", animationDuration: "1s" }}
             ></div>
+          </div> */}
+          <div className="min-h-screen flex items-center justify-center text-gray-500">
+            Loading orders...
           </div>
-          <p className="text-gray-700 font-semibold text-lg">
-            Loading your orders...
-          </p>
         </div>
       </div>
     );

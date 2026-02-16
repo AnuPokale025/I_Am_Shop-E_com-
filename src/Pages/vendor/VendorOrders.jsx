@@ -119,8 +119,8 @@ const VendorOrders = () => {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="p-10 text-center text-gray-500">
-        
+      <div className="min-h-screen flex items-center justify-center  text-gray-500">
+        Loading orders...
       </div>
     );
   }

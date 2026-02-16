@@ -124,11 +124,11 @@ const AddCategory = () => {
 
           {preview && (
             <div className="mt-4">
-              <img
+              {/* <img
                 src={preview}
                 alt="Category Preview"
                 className="h-40 w-40 object-cover rounded-lg border"
-              />
+              /> */}
             </div>
           )}
         </div>

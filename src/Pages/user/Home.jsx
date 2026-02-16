@@ -12,6 +12,7 @@ const Home = () => {
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
   const [wishlistIds, setWishlistIds] = useState([]);
+  
 
   useEffect(() => {
     fetchData();
@@ -34,11 +35,14 @@ const Home = () => {
         const categoriesArray = Array.isArray(categoriesData) ? categoriesData : [];
         const productsArray = Array.isArray(productsData) ? productsData : [];
 
-        const mappedCategories = categoriesArray.map(cat => ({
-          ...cat,
-          img: cat.img || cat.image || cat.imageUrl,
-          image: cat.img || cat.image || cat.imageUrl
-        }));
+        const mappedCategories = categoriesArray.map(cat => {
+          const localCat = categoryData.find(c => c.name === cat.name || c.slug === cat.slug);
+          return {
+            ...cat,
+            img: cat.img || cat.image || cat.imageUrl || localCat?.image,
+            image: cat.img || cat.image || cat.imageUrl || localCat?.image
+          };
+        });
 
         setCategories(mappedCategories);
         setFeaturedProducts(productsArray);
@@ -162,13 +166,17 @@ const Home = () => {
     </div>
   );
 
-  if (loading) return <SkeletonLoader />;
+  // if (loading) return <SkeletonLoader />;
+  if (loading) {}
+   <div className="min-h-screen flex items-center justify-center  text-gray-500">
+        Loading orders...
+      </div>
 
   return (
     <div className="min-h-screen bg-gray-50">
 
       <div
-        
+
       >
         <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
           <div className="text-center max-w-3xl mx-auto">
@@ -286,13 +294,13 @@ const Home = () => {
                 to={`/categories/${category.slug}`}
                 className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
               >
-                <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden">
+                {/* <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden">
                   <img
                     src={category.img || category.image}
                     alt={category.name}
                     className="w-full h-full object-contain p-2"
                   />
-                </div>
+                </div> */}
                 <h3 className="text-center font-semibold text-gray-900 text-sm group-hover:text-green-600 transition-colors line-clamp-2">
                   {category.name}
                 </h3>

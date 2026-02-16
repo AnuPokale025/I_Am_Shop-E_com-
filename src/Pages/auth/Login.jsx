@@ -39,35 +39,41 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const res = await authLogin({
-        email: formData.email,
-        password: formData.password,
-        role: formData.role.toLowerCase(),
-      });
+  try {
+    const res = await authLogin({
+      email: formData.email,
+      password: formData.password,
+      role: formData.role.toLowerCase(),
+    });
 
-      const { token, role, user } = res.data;
-      Cookies.set("auth_token", token, { expires: 7 });
+    const { token, role, user } = res.data;
+    const finalRole = role.toUpperCase();
 
-      const finalRole = role.toUpperCase();
-      login(user, token, finalRole, formData.email);
+    login(user, token, finalRole, formData.email);
 
-      if (finalRole === "ADMIN") navigate("/admin/dashboard");
-      else if (finalRole === "VENDOR") navigate("/vendor/dashboard");
-      else navigate("/");
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Login failed. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    // Navigate AFTER login
+    if (finalRole === "ADMIN") {
+      navigate("/admin/dashboard", { replace: true });
+    } else if (finalRole === "VENDOR") {
+      navigate("/vendor/dashboard", { replace: true });
+    } else {
+      navigate("/", { replace: true });
     }
-  };
+
+  } catch (err) {
+    setError(
+      err.response?.data?.message ||
+      "Login failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-[#F7FEE7] flex items-center justify-center px-4">

@@ -43,7 +43,7 @@ export const signup = (data) => API.post('/auth/signup', data);
 export const logout = () => API.post('/auth/logout');
 
 export const forgotPassword = (email) =>
-  API.post("/auth/forgot-password", { email });
+  API.post("/auth/forgot-password", { email, role });
 export const resetPassword = (token, password) =>
   API.post("/auth/reset-password", { token, password });
 

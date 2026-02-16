@@ -58,8 +58,8 @@ const AdminProduct = () => {
 
   if (loading) {
     return (
-      <div className="p-10 text-center text-gray-500">
-        <Loader2 className="w-10 h-10 text-green-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center  text-gray-500">
+        Loading products...
       </div>
     );
   }

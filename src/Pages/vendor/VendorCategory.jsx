@@ -62,8 +62,8 @@ const VendorCategory = () => {
   /* ================= STATES ================= */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center  text-gray-500"> Loading categories...
+        {/* <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" /> */}
       </div>
     );
   }
@@ -112,11 +112,11 @@ const VendorCategory = () => {
             key={c.categoryId || c.id}
             className="bg-white rounded-2xl shadow-sm p-3 flex gap-3"
           >
-            <img
+            {/* <img
               src={c.image || "/placeholder.png"}
               alt={c.name}
               className="w-20 h-20 rounded-xl object-cover border"
-            />
+            /> */}
 
             <div className="flex-1">
               <div className="flex justify-between">
