@@ -6,7 +6,6 @@ import {
   Minus,
   ArrowLeft,
   ShoppingCart,
-  TrendingUp,
 } from "lucide-react";
 
 import productAPI from "../../api/product.api";
@@ -23,8 +22,6 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
 
-  const [relatedProducts, setRelatedProducts] = useState([]);
-
   const [reviews, setReviews] = useState([]);
   const [reviewPage, setReviewPage] = useState(0);
   const [reviewTotalPages, setReviewTotalPages] = useState(1);
@@ -38,24 +35,15 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-  /* ================= FETCH PRODUCT ================= */
   const fetchProduct = async () => {
     try {
       setLoading(true);
-
       const data = await productAPI.getProductById(id);
       setProduct(data);
 
-      if (data.images?.length > 0) {
+      if (data?.images?.length > 0) {
         setSelectedImage(data.images[0].imageUrl);
       }
-
-      // if (data.categoryId) {
-      //   const related = await productAPI.getRelatedProducts(
-      //     data.categoryId
-      //   );
-      //   setRelatedProducts(related.content || related);
-      // }
 
       fetchReviews(0);
     } catch (err) {
@@ -65,11 +53,9 @@ const ProductDetails = () => {
     }
   };
 
-  /* ================= FETCH REVIEWS ================= */
   const fetchReviews = async (page = 0) => {
     try {
       const data = await productAPI.getFeedback(id, page, 5);
-
       setReviews(data.content || data);
       setReviewTotalPages(data.totalPages || 1);
       setReviewPage(page);
@@ -78,7 +64,6 @@ const ProductDetails = () => {
     }
   };
 
-  /* ================= SUBMIT REVIEW ================= */
   const submitReview = async () => {
     if (!newReview.comment.trim()) {
       alert("Please write a review");
@@ -94,7 +79,6 @@ const ProductDetails = () => {
     }
   };
 
-  /* ================= ADD TO CART ================= */
   const handleAddToCart = async () => {
     try {
       await cartAPI.addToCart(product.id, quantity);
@@ -108,7 +92,7 @@ const ProductDetails = () => {
   if (loading)
     return (
       <div className="min-h-screen flex justify-center items-center">
-        Loading...
+        <div className="animate-spin h-10 w-10 border-4 border-green-600 border-t-transparent rounded-full"></div>
       </div>
     );
 
@@ -120,34 +104,37 @@ const ProductDetails = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* HEADER */}
-      <div className="bg-white p-4 flex items-center gap-3 shadow sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 pb-24">
+      {/* HEADER - Increased z-index to stay on top */}
+      <div className="bg-white p-4 flex items-center gap-3 shadow-sm sticky top-0 z-[60]">
         <ArrowLeft
           onClick={() => navigate(-1)}
           className="cursor-pointer"
         />
-        <h1 className="font-bold">Product Details</h1>
+        <h1 className="font-semibold text-lg">Product Details</h1>
       </div>
 
       {/* MAIN SECTION */}
-      <div className="max-w-6xl mx-auto p-4 grid md:grid-cols-2 gap-8">
-        {/* IMAGE */}
-        <div className="bg-white rounded-2xl p-6">
-          <img
-            src={selectedImage || "/placeholder.png"}
-            className="w-full h-80 object-contain"
-          />
+      <div className="max-w-6xl mx-auto p-4 grid md:grid-cols-2 gap-8 items-start">
+        
+        {/* IMAGE SECTION */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="h-96 flex items-center justify-center bg-gray-50 rounded-xl">
+            <img
+              src={selectedImage || "/placeholder.png"}
+              alt={product.name}
+              className="max-h-80 object-contain"
+            />
+          </div>
 
           <div className="flex gap-3 mt-4 overflow-x-auto">
             {product.images?.map((img) => (
               <img
                 key={img.id}
                 src={img.imageUrl}
-                onClick={() =>
-                  setSelectedImage(img.imageUrl)
-                }
-                className={`h-16 w-16 object-contain border rounded-lg cursor-pointer ${
+                alt=""
+                onClick={() => setSelectedImage(img.imageUrl)}
+                className={`h-16 w-16 object-contain border rounded-lg cursor-pointer p-1 transition ${
                   selectedImage === img.imageUrl
                     ? "border-green-600"
                     : "border-gray-200"
@@ -157,197 +144,110 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* INFO */}
-        <div className="bg-white rounded-2xl p-6 space-y-4">
-          <h2 className="text-2xl font-bold">
-            {product.name}
-          </h2>
-          <p className="text-gray-600">
-            {product.description}
-          </p>
+        {/* PRODUCT INFO STICKY - Lower z-index and adjusted top offset */}
+        <div className="relative">
+          <div className="md:sticky md:top-20 z-10"> 
+            <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col">
+              
+              <h2 className="text-2xl font-bold mb-3">
+                {product.name}
+              </h2>
 
-          <div className="flex items-center gap-3">
-            <span className="text-3xl font-bold text-green-600">
-              ₹{product.price}
-            </span>
-            {product.mrp && (
-              <span className="line-through text-gray-400">
-                ₹{product.mrp}
-              </span>
-            )}
+              <p className="text-gray-600 mb-4 leading-relaxed">
+                {product.description}
+              </p>
+
+              {/* PRICE */}
+              <div className="flex items-end gap-4 mb-6">
+                <span className="text-3xl font-bold text-green-600">
+                  ₹{product.price}
+                </span>
+                {product.mrp && (
+                  <span className="line-through text-gray-400">
+                    ₹{product.mrp}
+                  </span>
+                )}
+              </div>
+
+              {/* QUANTITY */}
+              <div className="flex items-center gap-4 mb-8">
+                <span className="font-medium">Quantity</span>
+
+                <div className="flex items-center border rounded-lg overflow-hidden">
+                  <button
+                    onClick={() =>
+                      setQuantity(Math.max(1, quantity - 1))
+                    }
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200"
+                  >
+                    <Minus size={16} />
+                  </button>
+
+                  <span className="px-5 font-semibold">
+                    {quantity}
+                  </span>
+
+                  <button
+                    onClick={() =>
+                      setQuantity(
+                        Math.min(product.quantity || 10, quantity + 1)
+                      )
+                    }
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* ADD TO CART */}
+              <button
+                onClick={handleAddToCart}
+                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition"
+              >
+                <ShoppingCart size={18} />
+                Add to Cart
+              </button>
+
+            </div>
           </div>
-
-          {/* Quantity */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() =>
-                setQuantity(Math.max(1, quantity - 1))
-              }
-              className="p-2 border rounded"
-            >
-              <Minus />
-            </button>
-
-            <span>{quantity}</span>
-
-            <button
-              onClick={() =>
-                setQuantity(
-                  Math.min(product.quantity || 10, quantity + 1)
-                )
-              }
-              className="p-2 border rounded"
-            >
-              <Plus />
-            </button>
-          </div>
-
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-green-600 text-white py-3 rounded-xl font-bold"
-          >
-            <ShoppingCart className="inline mr-2" />
-            Add to Cart
-          </button>
         </div>
       </div>
 
-      {/* RELATED PRODUCTS */}
-      {relatedProducts.length > 0 && (
-        <div className="max-w-6xl mx-auto px-4 mt-12">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <TrendingUp /> Related Products
-          </h2>
+      {/* REVIEWS SECTION */}
+      <div className="max-w-6xl mx-auto px-4 pb-20">
+        <div className="bg-white rounded-2xl p-6 shadow-sm mt-6">
+          <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {relatedProducts.map((p) => (
-              <div
-                key={p.id}
-                onClick={() =>
-                  navigate(`/product/${p.id}`)
-                }
-                className="bg-white p-4 rounded-xl cursor-pointer"
-              >
-                <img
-                  src={
-                    p.images?.[0]?.imageUrl ||
-                    "/placeholder.png"
-                  }
-                  className="h-32 w-full object-contain mb-2"
-                />
-                <p className="font-semibold text-sm">
-                  {p.name}
-                </p>
-                <p className="font-bold text-green-600">
-                  ₹{p.price}
-                </p>
+          {reviews.map((review, index) => (
+            <div key={index} className="border-b py-4">
+              <div className="flex items-center gap-1 mb-2">
+                {[...Array(review.rating)].map((_, i) => (
+                  <Star key={i} size={16} className="text-yellow-500 fill-yellow-500" />
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* REVIEWS */}
-      <div className="max-w-4xl mx-auto px-4 mt-12">
-        <h2 className="text-xl font-bold mb-4">
-          Reviews
-        </h2>
-
-        {/* Add Review */}
-        <div className="bg-white p-4 rounded-xl mb-6">
-          <div className="flex gap-2 mb-2">
-            {[1, 2, 3, 4, 5].map((r) => (
-              <Star
-                key={r}
-                onClick={() =>
-                  setNewReview({
-                    ...newReview,
-                    rating: r,
-                  })
-                }
-                className={`cursor-pointer ${
-                  r <= newReview.rating
-                    ? "text-yellow-400 fill-current"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-
-          <textarea
-            value={newReview.comment}
-            onChange={(e) =>
-              setNewReview({
-                ...newReview,
-                comment: e.target.value,
-              })
-            }
-            className="w-full border rounded-lg p-2"
-            placeholder="Write your review..."
-          />
-
-          <button
-            onClick={submitReview}
-            className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg"
-          >
-            Submit Review
-          </button>
-        </div>
-
-        {/* Review List */}
-        {reviews.map((r) => (
-          <div
-            key={r.id}
-            className="bg-white p-4 rounded-xl mb-3"
-          >
-            <p className="font-semibold">
-              {r.userName}
-            </p>
-
-            <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-4 h-4 ${
-                    i < r.rating
-                      ? "text-yellow-400 fill-current"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
+              <p className="text-gray-600">{review.comment}</p>
             </div>
+          ))}
 
-            <p className="text-sm mt-1">
-              {r.comment}
-            </p>
-          </div>
-        ))}
-
-        {/* Pagination */}
-        <div className="flex justify-center gap-4 mt-4">
-          <button
-            disabled={reviewPage === 0}
-            onClick={() =>
-              fetchReviews(reviewPage - 1)
-            }
-          >
-            Prev
-          </button>
-
-          <span>
-            {reviewPage + 1} / {reviewTotalPages}
-          </span>
-
-          <button
-            disabled={
-              reviewPage + 1 >= reviewTotalPages
-            }
-            onClick={() =>
-              fetchReviews(reviewPage + 1)
-            }
-          >
-            Next
-          </button>
+          {reviewTotalPages > 1 && (
+            <div className="flex justify-between mt-4">
+              <button
+                disabled={reviewPage === 0}
+                onClick={() => fetchReviews(reviewPage - 1)}
+                className="px-4 py-2 bg-gray-100 rounded"
+              >
+                Prev
+              </button>
+              <button
+                disabled={reviewPage + 1 >= reviewTotalPages}
+                onClick={() => fetchReviews(reviewPage + 1)}
+                className="px-4 py-2 bg-gray-100 rounded"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -228,7 +228,7 @@ const VendorOrders = () => {
             </p>
 
             {/* ACTIONS */}
-            <div className="flex gap-2 mt-3">
+            {/* <div className="flex gap-2 mt-3">
               <Link
                 to={`/vendor/orders/${order.id}`}
                 className="flex-1 text-center text-xs py-2 rounded-lg border"
@@ -277,7 +277,7 @@ const VendorOrders = () => {
                   Delivered
                 </button>
               )}
-            </div>
+            </div> */}
           </div>
         ))}
       </div>

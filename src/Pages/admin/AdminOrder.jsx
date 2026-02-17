@@ -22,6 +22,7 @@ const Orders = () => {
     try {
       setLoading(true);
       const res = await adminAPI.getOrders();
+      console.log("Orders fetched:", res.data);
       setOrders(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load orders");
@@ -91,17 +92,22 @@ const Orders = () => {
           {orders.map((o) => (
             <div
               key={o.id}
-              className="bg-white rounded-2xl p-5 shadow-sm border"
+              className="bg-white rounded-2xl p-5 shadow-sm border space-y-4"
             >
               {/* Top */}
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="font-semibold text-gray-900">
-                    Order #{o.id}
+                    Order  : - {o.orderId}
                   </h2>
+
                   <div className="flex items-center text-sm text-gray-500 mt-1">
                     <User size={14} className="mr-1" />
                     {o.userEmail}
+                  </div>
+
+                  <div className="text-sm text-gray-500 mt-1">
+                    📅 {new Date(o.estimatedelivery).toLocaleString()}
                   </div>
                 </div>
 
@@ -110,21 +116,51 @@ const Orders = () => {
                     o.status
                   )}`}
                 >
-                  {o.status}
+                  {o.paymentMode}
                 </span>
               </div>
 
               {/* Divider */}
-              <div className="h-px bg-gray-100 my-4" />
+              <div className="h-px bg-gray-100" />
 
-              {/* Actions */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
-                  <Package size={16} />
-                  Order Processing
+              {/* Products */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  Ordered Items
+                </h3>
+                <div className="flex items-center text-sm text-gray-500 mt-1">
+                    <User size={14} className="mr-1" />
+                    {o.orderStatus}
+                  </div>
+
+                <div className="space-y-2">
+                  {o.items?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between text-sm text-gray-600"
+                    >
+                      <span>
+                        {item.productName} × {item.quantity}
+                      </span>
+                      <span>₹{item.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Address */}
+              {/* <div className="text-sm text-gray-600">
+                📍 <span className="font-medium">Shipping:</span>{" "}
+                {o.shippingAddress}
+              </div> */}
+
+              {/* Total */}
+              <div className="flex justify-between items-center">
+                <div className="text-lg font-semibold text-gray-900">
+                  Total: ₹{o.totalAmount}
                 </div>
 
-                <select
+                {/* <select
                   value={o.status}
                   onChange={(e) =>
                     updateStatus(o.id, e.target.value)
@@ -135,10 +171,11 @@ const Orders = () => {
                   <option value="SHIPPED">Shipped</option>
                   <option value="DELIVERED">Delivered</option>
                   <option value="CANCELLED">Cancelled</option>
-                </select>
+                </select> */}
               </div>
             </div>
           ))}
+
         </div>
       )}
     </div>

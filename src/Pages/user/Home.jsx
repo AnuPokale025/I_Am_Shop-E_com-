@@ -12,7 +12,7 @@ const Home = () => {
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
   const [wishlistIds, setWishlistIds] = useState([]);
-  
+
 
   useEffect(() => {
     fetchData();
@@ -167,10 +167,10 @@ const Home = () => {
   );
 
   // if (loading) return <SkeletonLoader />;
-  if (loading) {}
-   <div className="min-h-screen flex items-center justify-center  text-gray-500">
-        Loading orders...
-      </div>
+  if (loading) { }
+  <div className="min-h-screen flex items-center justify-center  text-gray-500">
+    Loading orders...
+  </div>
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -422,12 +422,17 @@ const Home = () => {
       </div>
 
       {/* Featured Products */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
-            <p className="text-gray-600 text-sm mt-1">Handpicked selections just for you</p>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Featured Products
+            </h2>
+            <p className="text-gray-600 text-sm mt-1">
+              Handpicked selections just for you
+            </p>
           </div>
+
           <Link
             to="/products"
             className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-1"
@@ -439,22 +444,21 @@ const Home = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {Array.isArray(featuredProducts) && featuredProducts.length > 0 ? (
             featuredProducts.slice(0, 10).map((product) => (
               <Link
                 key={product.id}
                 to={`/product/${product.id}`}
-                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
+                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col"
               >
 
-
-                {/* Image */}
-                <div className="relative bg-gray-50 p-3 flex justify-center">
+                {/* IMAGE CONTAINER (FIXED HEIGHT) */}
+                <div className="relative bg-gray-50 h-40 flex items-center justify-center p-4">
                   <img
                     src={getProductImage(product)}
                     alt={product.name}
-                    className="h-28 object-contain"
+                    className="max-h-32 object-contain transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => (e.target.src = "/placeholder.png")}
                   />
 
@@ -463,45 +467,69 @@ const Home = () => {
                       {product.discount}% OFF
                     </div>
                   )}
-                  <button className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Heart className="h-4 w-4 text-gray-600 hover:text-red-500" />
+
+                  <button
+                    onClick={(e) => handleWishlistClick(e, product.id)}
+                    className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md transition"
+                  >
+                    <Heart
+                      className={`h-4 w-4 ${wishlistIds.includes(product.id)
+                        ? "text-red-500 fill-current"
+                        : "text-gray-600"
+                        }`}
+                    />
                   </button>
                 </div>
 
-                <div className="p-3">
-                  <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-green-600 transition-colors text-sm line-clamp-2 min-h-[2.5rem]">
+                {/* CONTENT */}
+                <div className="p-4 flex flex-col flex-grow">
+
+                  {/* TITLE (FIXED HEIGHT) */}
+                  <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 min-h-[40px] group-hover:text-green-600 transition-colors">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-gray-500 mb-2">{product.category}</p>
 
-                  {product.rating && (
-                    <div className="flex items-center mb-2">
-                      <div className="flex items-center">
+                  {/* CATEGORY */}
+                  <p className="text-xs text-gray-500 mt-1 h-4 truncate">
+                    {product.category}
+                  </p>
+
+                  {/* RATING (FIXED HEIGHT) */}
+                  <div className="h-6 mt-2">
+                    {product.rating ? (
+                      <div className="flex items-center gap-1">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
                             className={`h-3 w-3 ${i < Math.floor(product.rating)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
+                              ? "text-yellow-400 fill-current"
+                              : "text-gray-300"
                               }`}
                           />
                         ))}
+                        <span className="text-xs text-gray-500 ml-1">
+                          ({product.reviews || 0})
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-500 ml-1">({product.reviews})</span>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="h-3" />
+                    )}
+                  </div>
 
-                  <div className="flex items-center justify-between">
+                  {/* PUSH PRICE TO BOTTOM */}
+                  <div className="mt-auto pt-3 flex items-center justify-between">
                     <div>
                       <span className="text-base font-bold text-gray-900">
                         ₹{product.price}
                       </span>
+                      
                       {product.originalPrice && (
                         <span className="text-xs text-gray-500 line-through ml-1">
                           ₹{product.originalPrice}
                         </span>
                       )}
                     </div>
+
                     <button
                       onClick={(e) => handleAddClick(e, product.id)}
                       className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
@@ -509,16 +537,20 @@ const Home = () => {
                       ADD
                     </button>
                   </div>
+
                 </div>
               </Link>
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <p className="text-gray-500">No featured products available</p>
+              <p className="text-gray-500">
+                No featured products available
+              </p>
             </div>
           )}
         </div>
       </div>
+
 
       {/* Customer Trust Section */}
       <div className="bg-white border-y border-gray-100 py-10">

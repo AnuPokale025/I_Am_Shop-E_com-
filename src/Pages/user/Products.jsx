@@ -94,13 +94,14 @@ const Product = () => {
 
   /* ================= LOADING ================= */
   if (loading) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 animate-pulse">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="h-56 bg-gray-200 rounded-xl" />
-        ))}
-      </div>
-    );
+    return <div className="p-10 text-center">Loading...</div>;
+      // <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 animate-pulse">
+      //   {[...Array(8)].map((_, i) => (
+      //     <div key={i} className="h-56 bg-gray-200 rounded-xl" />
+      //   ))}
+      // </div>
+      
+    
   }
 
   return (

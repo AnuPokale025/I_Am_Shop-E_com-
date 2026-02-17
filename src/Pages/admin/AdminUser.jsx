@@ -26,89 +26,124 @@ const AdminUser = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this user?")) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user?"
+    );
+    if (!confirmDelete) return;
+
     try {
       await adminAPI.deleteUser(id);
       setUsers((prev) => prev.filter((u) => u.id !== id));
-    } catch {
+    } catch (err) {
       alert("Failed to delete user");
     }
   };
 
+  /* ================= SEARCH FILTER ================= */
   const filteredUsers = users.filter((u) =>
-    u.email.toLowerCase().includes(search.toLowerCase())
+    `${u.email} ${u.name || ""}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
-  /* ===================== LOADER ===================== */
+  /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        {/* <Loader2 className="w-10 h-10 text-green-600 animate-spin" /> */}
-         <div className="min-h-screen flex items-center justify-center  text-gray-500">
+      <div className="flex items-center justify-center py-20 text-gray-500">
+        <Loader2 className="w-6 h-6 animate-spin mr-2" />
         Loading customers...
-      </div>
       </div>
     );
   }
 
-  /* ===================== ERROR ===================== */
+  /* ================= ERROR ================= */
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500 font-medium">{error}</p>
+      <div className="text-center py-20 text-red-500 font-medium">
+        {error}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-6">
       {/* ================= HEADER ================= */}
-      <div className="sticky top-0 bg-green-600 text-white p-4 z-20">
-        <h1 className="text-xl font-bold">👥 Users</h1>
-        <p className="text-sm opacity-90">Manage all users</p>
+      <div className="bg-white rounded-2xl p-6 shadow-sm border">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              👥 Customers
+            </h1>
+            <p className="text-sm text-gray-500">
+              Manage all registered users
+            </p>
+          </div>
 
-        {/* Search */}
-        <div className="mt-3 relative">
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search by email"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none"
-          />
+          {/* Search */}
+          <div className="relative w-full md:w-80">
+            <Search
+              className="absolute left-3 top-2.5 text-gray-400"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Search by email or name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl pl-10 pr-4 py-2 border focus:ring-2 focus:ring-green-500 outline-none text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Count */}
+        <div className="mt-4 text-sm text-gray-500">
+          Total Users:{" "}
+          <span className="font-semibold text-gray-800">
+            {filteredUsers.length}
+          </span>
         </div>
       </div>
 
-      {/* ================= USERS LIST ================= */}
-      <div className="p-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* ================= USERS GRID ================= */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredUsers.length === 0 ? (
-          <p className="col-span-full text-center text-gray-500">
-            No users found
-          </p>
+          <div className="col-span-full text-center py-16 bg-white rounded-2xl border">
+            <User className="mx-auto text-gray-300 mb-3" size={40} />
+            <p className="text-gray-500 font-medium">
+              No users found
+            </p>
+          </div>
         ) : (
-          filteredUsers.map((u) => (
+          filteredUsers.map((user) => (
             <div
-              key={u.id}
-              className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition"
+              key={user.id}
+              className="bg-white rounded-2xl p-5 shadow-sm border hover:shadow-md transition"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-4">
+                {/* Avatar */}
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <User className="text-green-600" />
+                  <User className="text-green-600" size={20} />
                 </div>
 
+                {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">
-                    {u.email}
+                  <p className="font-semibold text-gray-900 truncate">
+                    {user.name || "Customer"}
                   </p>
-                  <span className="text-xs px-2 py-0.5 bg-gray-100 rounded-full">
-                    {u.role}
+
+                  <p className="text-sm text-gray-500 truncate">
+                    {user.email}
+                  </p>
+
+                  <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                    {user.role || "USER"}
                   </span>
                 </div>
 
+                {/* Delete */}
                 <button
-                  onClick={() => handleDelete(u.id)}
-                  className="text-red-500 hover:bg-red-50 p-2 rounded-full"
+                  onClick={() => handleDelete(user.id)}
+                  className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition"
                 >
                   <Trash2 size={18} />
                 </button>
