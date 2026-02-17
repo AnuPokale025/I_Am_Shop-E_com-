@@ -4,25 +4,75 @@ import { Heart, Star, Clock, ShoppingCart, User } from "lucide-react";
 import axios from "axios";
 import wishlistAPI from "../../api/wishlist.api";
 
+const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
+
 const Product = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [wishlistIds, setWishlistIds] = useState([]);
   const navigate = useNavigate();
-  // const { categoryId, subId } = useParams();
 
   useEffect(() => {
-    fetchProducts();
-    fetchWishlist();
+    loadProducts();
+    loadWishlist();
   }, []);
 
-  /* ================= FETCH WISHLIST ================= */
-  const fetchWishlist = async () => {
+  /* ================= SMART CACHE CHECK ================= */
+
+  const isCacheValid = (key) => {
+    const cacheTime = localStorage.getItem(`${key}_time`);
+    if (!cacheTime) return false;
+
+    const now = Date.now();
+    return now - parseInt(cacheTime) < CACHE_TIME;
+  };
+
+  /* ================= LOAD PRODUCTS ================= */
+
+  const loadProducts = async () => {
     try {
+      const cachedProducts = localStorage.getItem("products");
+
+      if (cachedProducts && isCacheValid("products")) {
+        setFeaturedProducts(JSON.parse(cachedProducts));
+        setLoading(false);
+        return;
+      }
+
+      const res = await axios.get(
+        "https://iamashop-production.up.railway.app/api/products"
+      );
+
+      const products = Array.isArray(res.data) ? res.data : [];
+
+      setFeaturedProducts(products);
+
+      // Save to cache
+      localStorage.setItem("products", JSON.stringify(products));
+      localStorage.setItem("products_time", Date.now().toString());
+
+    } catch (error) {
+      console.error("Product fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= LOAD WISHLIST ================= */
+
+  const loadWishlist = async () => {
+    try {
+      const cachedWishlist = localStorage.getItem("wishlist");
+
+      if (cachedWishlist && isCacheValid("wishlist")) {
+        setWishlistIds(JSON.parse(cachedWishlist));
+        return;
+      }
+
       const res = await wishlistAPI.getWishlist();
       const data = res?.data || res;
-      let items = [];
 
+      let items = [];
       if (Array.isArray(data)) items = data;
       else if (Array.isArray(data?.items)) items = data.items;
       else if (Array.isArray(data?.wishlist)) items = data.wishlist;
@@ -32,33 +82,23 @@ const Product = () => {
         .filter(Boolean);
 
       setWishlistIds(ids);
+
+      // Save to cache
+      localStorage.setItem("wishlist", JSON.stringify(ids));
+      localStorage.setItem("wishlist_time", Date.now().toString());
+
     } catch (err) {
       console.error("Wishlist load failed", err);
     }
   };
 
-  /* ================= FETCH PRODUCTS ================= */
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get(
-        "https://iamashop-production.up.railway.app/api/products"
-      );
+  /* ================= GET IMAGE ================= */
 
-      setFeaturedProducts(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error("Product fetch error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* ================= GET IMAGE FROM YOUR BODY ================= */
   const getProductImage = (product) => {
     if (!product.images || product.images.length === 0) {
       return "/placeholder.png";
     }
 
-    // Try to find primary image
     const primaryImage = product.images.find((img) => img.primary);
 
     return (
@@ -68,45 +108,56 @@ const Product = () => {
     );
   };
 
+  /* ================= HANDLE ADD ================= */
+
   const handleAddClick = (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
     navigate(`/product/${productId}`);
   };
 
+  /* ================= HANDLE WISHLIST ================= */
+
   const handleWishlistClick = async (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
 
     const isLiked = wishlistIds.includes(productId);
+
     try {
+      let updatedIds;
+
       if (isLiked) {
         await wishlistAPI.removeFromWishlist(productId);
-        setWishlistIds((prev) => prev.filter((id) => id !== productId));
+        updatedIds = wishlistIds.filter((id) => id !== productId);
       } else {
         await wishlistAPI.addToWishlist(productId);
-        setWishlistIds((prev) => [...prev, productId]);
+        updatedIds = [...wishlistIds, productId];
       }
+
+      setWishlistIds(updatedIds);
+
+      // Update cache instantly
+      localStorage.setItem("wishlist", JSON.stringify(updatedIds));
+      localStorage.setItem("wishlist_time", Date.now().toString());
+
     } catch (err) {
       console.error("Wishlist error", err);
     }
   };
 
   /* ================= LOADING ================= */
+
   if (loading) {
-    return <div className="p-10 text-center">Loading...</div>;
-      // <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 animate-pulse">
-      //   {[...Array(8)].map((_, i) => (
-      //     <div key={i} className="h-56 bg-gray-200 rounded-xl" />
-      //   ))}
-      // </div>
-      
-    
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-[#F5F7F2]">
-      {/* Header */}
       <div className="px-4 pt-6 pb-4">
         <h2 className="text-xl font-bold text-gray-900">
           Order in 10 minutes ⚡
@@ -116,7 +167,6 @@ const Product = () => {
         </p>
       </div>
 
-      {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-4 pb-24">
         {featuredProducts.map((product) => (
           <Link
@@ -124,7 +174,6 @@ const Product = () => {
             to={`/product/${product.id}`}
             className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
           >
-            {/* Image */}
             <div className="relative bg-gray-50 p-3 flex justify-center">
               <img
                 src={getProductImage(product)}
@@ -133,7 +182,6 @@ const Product = () => {
                 onError={(e) => (e.target.src = "/placeholder.png")}
               />
 
-              {/* Wishlist */}
               <button
                 onClick={(e) => handleWishlistClick(e, product.id)}
                 className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow"
@@ -148,7 +196,6 @@ const Product = () => {
               </button>
             </div>
 
-            {/* Info */}
             <div className="px-3 py-2">
               <p className="text-sm font-medium text-gray-900 line-clamp-2">
                 {product.name}
@@ -161,9 +208,7 @@ const Product = () => {
 
               <div className="flex items-center gap-1 mt-1">
                 <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                <span className="text-xs text-gray-500">
-                  4.5
-                </span>
+                <span className="text-xs text-gray-500">4.5</span>
               </div>
 
               <div className="flex items-center justify-between mt-2">
@@ -183,7 +228,6 @@ const Product = () => {
         ))}
       </div>
 
-      {/* Floating Buttons */}
       <div className="fixed bottom-5 right-5 flex flex-col gap-3 md:hidden">
         <Link
           to="/cart"

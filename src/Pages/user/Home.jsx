@@ -15,76 +15,71 @@ const Home = () => {
 
 
   useEffect(() => {
-    fetchData();
+    const cachedCategories = localStorage.getItem("categories");
+    const cachedProducts = localStorage.getItem("featuredProducts");
+
+    if (cachedCategories && cachedProducts) {
+      setCategories(JSON.parse(cachedCategories));
+      setFeaturedProducts(JSON.parse(cachedProducts));
+      setLoading(false);
+    } else {
+      fetchData();
+    }
+
     fetchWishlist();
   }, []);
 
+
   const fetchData = async () => {
     try {
+      setLoading(true);
+
       const [categoriesResponse, productsResponse] = await Promise.all([
-        fetch('https://iamashop-production.up.railway.app/api/categories'),
-        fetch('https://iamashop-production.up.railway.app/api/products')
+        fetch("https://iamashop-production.up.railway.app/api/categories"),
+        fetch("https://iamashop-production.up.railway.app/api/products"),
       ]);
 
-      if (categoriesResponse.ok && productsResponse.ok) {
-        const [categoriesData, productsData] = await Promise.all([
-          categoriesResponse.json(),
-          productsResponse.json()
-        ]);
-
-        const categoriesArray = Array.isArray(categoriesData) ? categoriesData : [];
-        const productsArray = Array.isArray(productsData) ? productsData : [];
-
-        const mappedCategories = categoriesArray.map(cat => {
-          const localCat = categoryData.find(c => c.name === cat.name || c.slug === cat.slug);
-          return {
-            ...cat,
-            img: cat.img || cat.image || cat.imageUrl || localCat?.image,
-            image: cat.img || cat.image || cat.imageUrl || localCat?.image
-          };
-        });
-
-        setCategories(mappedCategories);
-        setFeaturedProducts(productsArray);
-      } else {
-        const mappedCategories = categoryData.map(cat => ({
-          ...cat,
-          img: cat.img || cat.image || cat.imageUrl,
-          image: cat.img || cat.image || cat.imageUrl
-        }));
-        setCategories(mappedCategories);
-
-        const productsResponse = await fetch('https://iamashop-production.up.railway.app/api/products');
-        if (productsResponse.ok) {
-          const productsData = await productsResponse.json();
-          setFeaturedProducts(Array.isArray(productsData) ? productsData : []);
-        } else {
-          setFeaturedProducts([
-            { id: 1, name: 'Organic Apples', category: 'Fruits', price: 120, originalPrice: 150, discount: 20, image: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300', rating: 4.5, reviews: 128 },
-            { id: 2, name: 'Fresh Milk', category: 'Dairy', price: 65, image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300', rating: 4.8, reviews: 89 },
-            { id: 3, name: 'Whole Wheat Bread', category: 'Bakery', price: 45, originalPrice: 50, discount: 10, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300', rating: 4.2, reviews: 67 },
-            { id: 4, name: 'Orange Juice', category: 'Beverages', price: 85, image: 'https://images.unsplash.com/photo-1542837308-e3d7b1e0c9d2?w=300', rating: 4.6, reviews: 156 }
-          ]);
-        }
+      if (!categoriesResponse.ok || !productsResponse.ok) {
+        throw new Error("API failed");
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      const mappedCategories = categoryData.map(cat => ({
-        ...cat,
-        img: cat.img || cat.image || cat.imageUrl,
-        image: cat.img || cat.image || cat.imageUrl
-      }));
-      setCategories(mappedCategories);
-      setFeaturedProducts([
-        { id: 1, name: 'Organic Apples', category: 'Fruits', price: 120, originalPrice: 150, discount: 20, image: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300', rating: 4.5, reviews: 128 },
-        { id: 2, name: 'Fresh Milk', category: 'Dairy', price: 65, image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300', rating: 4.8, reviews: 89 },
-        { id: 3, name: 'Whole Wheat Bread', category: 'Bakery', price: 45, originalPrice: 50, discount: 10, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300', rating: 4.2, reviews: 67 },
-        { id: 4, name: 'Orange Juice', category: 'Beverages', price: 85, image: 'https://images.unsplash.com/photo-1542837308-e3d7b1e0c9d2?w=300', rating: 4.6, reviews: 156 }
+
+      const [categoriesData, productsData] = await Promise.all([
+        categoriesResponse.json(),
+        productsResponse.json(),
       ]);
+
+      const categoriesArray = Array.isArray(categoriesData)
+        ? categoriesData
+        : [];
+      const productsArray = Array.isArray(productsData)
+        ? productsData
+        : [];
+
+      const mappedCategories = categoriesArray.map((cat) => {
+        const localCat = categoryData.find(
+          (c) => c.name === cat.name || c.slug === cat.slug
+        );
+        return {
+          ...cat,
+          img: cat.img || cat.image || cat.imageUrl || localCat?.image,
+          image: cat.img || cat.image || cat.imageUrl || localCat?.image,
+        };
+      });
+
+      setCategories(mappedCategories);
+      setFeaturedProducts(productsArray);
+
+      // ✅ Save to localStorage
+      localStorage.setItem("categories", JSON.stringify(mappedCategories));
+      localStorage.setItem("featuredProducts", JSON.stringify(productsArray));
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
+
   /* ================= GET IMAGE FROM YOUR BODY ================= */
   const getProductImage = (product) => {
     if (!product.images || product.images.length === 0) {
@@ -291,7 +286,7 @@ const Home = () => {
             categories.slice(0, 12).map((category, index) => (
               <Link
                 key={category.id}
-                to={`/categories/${category.slug}`}
+                to={'/subcategories'}
                 className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
               >
                 {/* <div className="aspect-square bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden">
@@ -434,7 +429,7 @@ const Home = () => {
           </div>
 
           <Link
-            to="/products"
+            to="/subcategory/:id/products"
             className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-1"
           >
             View All
@@ -445,109 +440,69 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {Array.isArray(featuredProducts) && featuredProducts.length > 0 ? (
-            featuredProducts.slice(0, 10).map((product) => (
-              <Link
-                key={product.id}
-                to={`/product/${product.id}`}
-                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col"
-              >
+          {featuredProducts.map((product) => (
+            <Link
+              key={product.id}
+              to={`/product/${product.id}`}
+              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
+            >
+              <div className="relative bg-gray-50 p-3 flex justify-center">
+                <img
+                  src={getProductImage(product)}
+                  alt={product.name}
+                  className="h-28 object-contain"
+                  onError={(e) => (e.target.src = "/placeholder.png")}
+                />
 
-                {/* IMAGE CONTAINER (FIXED HEIGHT) */}
-                <div className="relative bg-gray-50 h-40 flex items-center justify-center p-4">
-                  <img
-                    src={getProductImage(product)}
-                    alt={product.name}
-                    className="max-h-32 object-contain transition-transform duration-300 group-hover:scale-105"
-                    onError={(e) => (e.target.src = "/placeholder.png")}
+                <button
+                  onClick={(e) => handleWishlistClick(e, product.id)}
+                  className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow"
+                >
+                  <Heart
+                    className={`h-4 w-4 ${wishlistIds.includes(product.id)
+                        ? "text-red-500 fill-current"
+                        : "text-gray-400"
+                      }`}
                   />
+                </button>
+              </div>
 
-                  {product.discount > 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-md">
-                      {product.discount}% OFF
-                    </div>
-                  )}
+              <div className="px-3 py-2">
+                <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                  {product.name}
+                </p>
+
+                <div className="flex items-center gap-1 text-xs text-green-700 font-semibold mt-1">
+                  <Clock className="w-3 h-3" />
+                  10–15 mins
+                </div>
+
+                <div className="flex items-center gap-1 mt-1">
+                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                  <span className="text-xs text-gray-500">4.5</span>
+                </div>
+
+                <div className="flex items-center justify-between mt-2">
+                  <span className="font-bold text-gray-900">
+                    ₹{product.price}
+                  </span>
 
                   <button
-                    onClick={(e) => handleWishlistClick(e, product.id)}
-                    className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md transition"
+                    onClick={(e) => handleAddClick(e, product.id)}
+                    className="border border-[#0C831F] text-[#0C831F] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[#0C831F] hover:text-white transition"
                   >
-                    <Heart
-                      className={`h-4 w-4 ${wishlistIds.includes(product.id)
-                        ? "text-red-500 fill-current"
-                        : "text-gray-600"
-                        }`}
-                    />
+                    ADD
                   </button>
                 </div>
-
-                {/* CONTENT */}
-                <div className="p-4 flex flex-col flex-grow">
-
-                  {/* TITLE (FIXED HEIGHT) */}
-                  <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 min-h-[40px] group-hover:text-green-600 transition-colors">
-                    {product.name}
-                  </h3>
-
-                  {/* CATEGORY */}
-                  <p className="text-xs text-gray-500 mt-1 h-4 truncate">
-                    {product.category}
-                  </p>
-
-                  {/* RATING (FIXED HEIGHT) */}
-                  <div className="h-6 mt-2">
-                    {product.rating ? (
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-3 w-3 ${i < Math.floor(product.rating)
-                              ? "text-yellow-400 fill-current"
-                              : "text-gray-300"
-                              }`}
-                          />
-                        ))}
-                        <span className="text-xs text-gray-500 ml-1">
-                          ({product.reviews || 0})
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="h-3" />
-                    )}
-                  </div>
-
-                  {/* PUSH PRICE TO BOTTOM */}
-                  <div className="mt-auto pt-3 flex items-center justify-between">
-                    <div>
-                      <span className="text-base font-bold text-gray-900">
-                        ₹{product.price}
-                      </span>
-                      
-                      {product.originalPrice && (
-                        <span className="text-xs text-gray-500 line-through ml-1">
-                          ₹{product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={(e) => handleAddClick(e, product.id)}
-                      className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-                    >
-                      ADD
-                    </button>
-                  </div>
-
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500">
-                No featured products available
-              </p>
-            </div>
-          )}
+              </div>
+            </Link>
+          ))} 
+          {/* <div className="col-span-full text-center py-12">
+            <p className="text-gray-500">
+              No featured products available
+            </p>
+          </div>
+         */}
         </div>
       </div>
 

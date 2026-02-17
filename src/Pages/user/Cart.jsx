@@ -34,8 +34,10 @@ const Cart = () => {
 
   /* ================= FETCH CART ================= */
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     fetchCart();
   }, []);
+
 
   const fetchCart = async () => {
     try {
@@ -107,12 +109,20 @@ const Cart = () => {
     }
   };
 
+
   /* ================= UPDATE QTY ================= */
   const updateQuantity = async (productId, qty) => {
-    if (qty < 1) return;
+    if (qty < 0) return;
+
+    // ✅ If quantity becomes 0 → remove item
+    if (qty === 0) {
+      await removeItem(productId);
+      return;
+    }
 
     const prev = [...cartItems];
 
+    // Optimistic update
     setCartItems((items) =>
       items.map((i) =>
         i.productId === productId ? { ...i, quantity: qty } : i
@@ -127,6 +137,7 @@ const Cart = () => {
     }
   };
 
+
   /* ================= PRICE CALC ================= */
   const totalPrice = cartItems.reduce(
     (sum, i) => sum + i.price * i.quantity,
@@ -138,7 +149,7 @@ const Cart = () => {
   const savings = 50;
   const grandTotal = totalPrice + deliveryFee + handlingFee + selectedTip;
 
- 
+
   /* ================= LOADING ================= */
   if (loading)
     return (
@@ -202,7 +213,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50">
-      
+
       {/* Top Header Bar */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -216,7 +227,7 @@ const Cart = () => {
                 <p className="text-sm text-slate-500">{cartItems.length} items</p>
               </div>
             </div>
-            
+
             <div className="hidden md:flex items-center gap-6">
               <div className="flex items-center gap-2 text-emerald-600">
                 <Shield size={18} />
@@ -232,7 +243,7 @@ const Cart = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        
+
         {/* Savings Banner */}
         <div className="mb-6 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 rounded-2xl p-1 shadow-lg">
           <div className="bg-white rounded-xl p-4 flex items-center justify-between">
@@ -253,7 +264,7 @@ const Cart = () => {
 
           {/* ================= LEFT SECTION ================= */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Delivery Progress */}
             {totalPrice < 200 && totalPrice > 0 && (
               <div className="bg-white rounded-2xl p-5 shadow-md border border-blue-100">
@@ -288,7 +299,7 @@ const Cart = () => {
                 >
                   <div className="p-5">
                     <div className="flex gap-5">
-                      
+
                       {/* Product Image */}
                       <div className="relative flex-shrink-0">
                         <img
@@ -313,7 +324,7 @@ const Cart = () => {
                           <h3 className="font-bold text-slate-800 text-xl mb-2 leading-tight">
                             {item.name}
                           </h3>
-                          
+
                           <div className="flex items-center gap-3 mb-3">
                             <span className="text-3xl font-bold text-emerald-600">
                               ₹{item.price}
@@ -351,11 +362,12 @@ const Cart = () => {
                             >
                               <Minus size={18} className="text-emerald-600" />
                             </button>
-                            
+
+
                             <div className="w-14 text-center">
                               <span className="font-bold text-slate-800 text-lg">{item.quantity}</span>
                             </div>
-                            
+
                             <button
                               onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                               className="w-10 h-10 bg-white rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center shadow-sm"
@@ -381,7 +393,7 @@ const Cart = () => {
                         <Heart size={16} className="group-hover:fill-emerald-600" />
                         <span className="text-sm font-medium">Save for Later</span>
                       </button>
-                      
+
                       <button
                         onClick={() => removeItem(item.productId)}
                         className="flex items-center gap-2 text-red-500 hover:text-red-600 transition-colors group"
@@ -416,7 +428,7 @@ const Cart = () => {
           {/* ================= RIGHT: CHECKOUT SECTION ================= */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-24">
-              
+
               {/* Header */}
               <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-5 text-white">
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -473,7 +485,7 @@ const Cart = () => {
                     </span>
                     <span className="text-sm">{showCoupon ? "−" : "+"}</span>
                   </button>
-                  
+
                   {showCoupon && (
                     <div className="flex gap-2 mb-4">
                       <input
@@ -501,11 +513,10 @@ const Cart = () => {
                       <button
                         key={tip}
                         onClick={() => setSelectedTip(tip)}
-                        className={`py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${
-                          selectedTip === tip
+                        className={`py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${selectedTip === tip
                             ? "bg-emerald-600 text-white shadow-lg scale-110"
                             : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                        }`}
+                          }`}
                       >
                         ₹{tip}
                       </button>

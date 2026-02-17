@@ -32,6 +32,7 @@ const ProductDetails = () => {
   });
 
   useEffect(() => {
+     window.scrollTo({ top: 0, behavior: "instant" });
     fetchProduct();
   }, [id]);
 

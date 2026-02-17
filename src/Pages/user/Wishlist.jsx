@@ -270,7 +270,10 @@ const Wishlist = () => {
   const [error, setError]                 = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => { fetchWishlist(); }, []);
+  useEffect(() => { fetchWishlist(); 
+    window.scrollTo({ top: 0, behavior: "instant" });
+  },
+   []);
 
   const fetchWishlist = async () => {
     try {

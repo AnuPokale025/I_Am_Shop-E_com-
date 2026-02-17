@@ -41,20 +41,21 @@ const StepBar = ({ step }) => {
     </div>
   );
 };
- const getProductImage = (product) => {
-    if (!product.images || product.images.length === 0) {
-      return "/placeholder.png";
-    }
 
-    // Try to find primary image
-    const primaryImage = product.images.find((img) => img.primary);
-
-    return (
-      primaryImage?.imageUrl ||
-      product.images[0]?.imageUrl ||
-      "/placeholder.png"
-    );
-  };
+/* ══════════════════════════════════════════
+   PRODUCT IMAGE HELPER
+══════════════════════════════════════════ */
+const getProductImage = (product) => {
+  if (!product.images || product.images.length === 0) {
+    return "/placeholder.png";
+  }
+  const primaryImage = product.images.find((img) => img.primary);
+  return (
+    primaryImage?.imageUrl ||
+    product.images[0]?.imageUrl ||
+    "/placeholder.png"
+  );
+};
 
 /* ══════════════════════════════════════════
    BLINKIT-STYLE ADDRESS MODAL
@@ -74,22 +75,6 @@ const AddressModal = ({ existing, onClose, onSave }) => {
   );
   const [errors, setErrors] = useState({});
   const [pinLoading, setPinLoading] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-
-  const getProductImage = (product) => {
-    if (!product.images || product.images.length === 0) {
-      return "/placeholder.png";
-    }
-
-    // Try to find primary image
-    const primaryImage = product.images.find((img) => img.primary);
-
-    return (
-      primaryImage?.imageUrl ||
-      product.images[0]?.imageUrl ||
-      "/placeholder.png"
-    );
-  };
 
   const set = (key, val) => {
     setForm((f) => ({ ...f, [key]: val }));
@@ -101,7 +86,6 @@ const AddressModal = ({ existing, onClose, onSave }) => {
     set("pinCode", val);
     if (val.length === 6) {
       setPinLoading(true);
-      // Replace with real API call if needed
       setTimeout(() => {
         const mockPinMap = { "400092": "Nagpur", "400001": "Mumbai", "110001": "New Delhi" };
         if (mockPinMap[val]) set("city", mockPinMap[val]);
@@ -133,7 +117,6 @@ const AddressModal = ({ existing, onClose, onSave }) => {
 
         {/* ── Header ── */}
         <div className="relative px-5 pt-5 pb-4 border-b">
-          {/* Drag handle (mobile) */}
           <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4 sm:hidden" />
           <div className="flex items-center justify-between">
             <div>
@@ -168,7 +151,7 @@ const AddressModal = ({ existing, onClose, onSave }) => {
             </div>
           </div>
 
-          {/* ── PIN Code (prominent, first — Blinkit pattern) ── */}
+          {/* ── PIN Code ── */}
           <div>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">PIN Code</p>
             <div className="relative">
@@ -202,7 +185,7 @@ const AddressModal = ({ existing, onClose, onSave }) => {
             )}
           </div>
 
-          {/* ── City (auto-filled from PIN) ── */}
+          {/* ── City ── */}
           <div>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">City</p>
             <input
@@ -411,7 +394,6 @@ const Checkout = () => {
     setPlacingOrder(true);
     try {
       const addr = addresses[selectedAddressIdx];
-      // Maps to your exact Postman body shape:
       const orderBody = {
         address: {
           fullName: addr.fullName,
@@ -453,13 +435,6 @@ const Checkout = () => {
   const selectedAddress = addresses[selectedAddressIdx];
   const visibleAddresses = showAllAddresses ? addresses : addresses.slice(0, 2);
 
-  // Label icon helper
-  const getLabelIcon = (label) => {
-    if (label === "Work") return <Briefcase size={11} />;
-    if (label === "Other") return <MapPin size={11} />;
-    return <Home size={11} />;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
 
@@ -490,7 +465,7 @@ const Checkout = () => {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-5">
 
-          {/* ─── STEP 1: ADDRESS (Blinkit-style) ─── */}
+          {/* ─── STEP 1: ADDRESS ─── */}
           <div className={`bg-white rounded-2xl shadow-sm overflow-hidden ${step > 1 ? "ring-1 ring-blue-400" : ""}`}>
             <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
               <div className="flex items-center gap-2">
@@ -504,12 +479,9 @@ const Checkout = () => {
 
             {step === 1 ? (
               <div className="p-5 space-y-4">
-
-                {/* Saved address cards — Blinkit style */}
                 {addresses.length > 0 && (
                   <div className="space-y-3">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Saved Addresses</p>
-
                     {visibleAddresses.map((addr, idx) => {
                       const isSelected = selectedAddressIdx === idx;
                       return (
@@ -518,20 +490,14 @@ const Checkout = () => {
                             ${isSelected
                               ? "border-blue-600 shadow-md shadow-blue-100"
                               : "border-gray-200 hover:border-gray-300 hover:shadow-sm"}`}>
-
-                          {/* Selected top bar */}
                           {isSelected && (
                             <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-700" />
                           )}
-
                           <div className="p-4 flex gap-3">
-                            {/* Icon column */}
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5
                               ${isSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"}`}>
                               {addr.label === "Work" ? <Briefcase size={18} /> : addr.label === "Other" ? <MapPin size={18} /> : <Home size={18} />}
                             </div>
-
-                            {/* Content */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className={`text-xs font-extrabold uppercase tracking-wider
@@ -553,8 +519,6 @@ const Checkout = () => {
                                 {addr.city} – <span className="font-semibold">{addr.pinCode}</span>
                               </p>
                             </div>
-
-                            {/* Action buttons */}
                             <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition">
                               <button
                                 onClick={(e) => { e.stopPropagation(); setEditingAddress(idx); setShowAddressModal(true); }}
@@ -568,8 +532,6 @@ const Checkout = () => {
                               </button>
                             </div>
                           </div>
-
-                          {/* Delivery ETA strip on selected */}
                           {isSelected && (
                             <div className="px-4 py-2 bg-blue-50 border-t border-blue-100 flex items-center gap-2">
                               <Truck size={12} className="text-blue-600" />
@@ -581,7 +543,6 @@ const Checkout = () => {
                         </div>
                       );
                     })}
-
                     {addresses.length > 2 && (
                       <button onClick={() => setShowAllAddresses((v) => !v)}
                         className="w-full text-sm text-blue-600 font-semibold py-2 flex items-center justify-center gap-1 hover:underline">
@@ -592,7 +553,6 @@ const Checkout = () => {
                   </div>
                 )}
 
-                {/* Add new address — Blinkit style */}
                 <button
                   onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
                   className="w-full border-2 border-dashed border-gray-300 rounded-2xl p-4 flex items-center gap-3
@@ -608,7 +568,6 @@ const Checkout = () => {
                   <ChevronRight size={16} className="ml-auto text-gray-400 group-hover:text-blue-500 transition" />
                 </button>
 
-                {/* Free delivery progress */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl px-4 py-3 flex items-center gap-3">
                   <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Truck size={18} className="text-white" />
@@ -630,7 +589,6 @@ const Checkout = () => {
                 </button>
               </div>
             ) : (
-              /* Collapsed */
               selectedAddress && (
                 <div className="px-5 py-4 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
@@ -651,7 +609,7 @@ const Checkout = () => {
             )}
           </div>
 
-          {/* STEP 2: PAYMENT */}
+          {/* ─── STEP 2: PAYMENT ─── */}
           {step >= 2 && (
             <div className={`bg-white rounded-2xl shadow-sm overflow-hidden ${step > 2 ? "ring-1 ring-blue-400" : ""}`}>
               <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
@@ -748,16 +706,22 @@ const Checkout = () => {
                   {(() => {
                     const m = paymentMethods.find((p) => p.id === paymentMode);
                     const Icon = m?.icon || CreditCard;
-                    return <><Icon size={16} /><span className="font-semibold text-sm">{m?.name}</span>
-                      {paymentMode === "EMI" && <span className="text-xs text-gray-500">· {emiMonths} mo @ ₹{Math.ceil(totalAmount / emiMonths)}/mo</span>}
-                    </>;
+                    return (
+                      <>
+                        <Icon size={16} />
+                        <span className="font-semibold text-sm">{m?.name}</span>
+                        {paymentMode === "EMI" && (
+                          <span className="text-xs text-gray-500">· {emiMonths} mo @ ₹{Math.ceil(totalAmount / emiMonths)}/mo</span>
+                        )}
+                      </>
+                    );
                   })()}
                 </div>
               )}
             </div>
           )}
 
-          {/* STEP 3: REVIEW */}
+          {/* ─── STEP 3: REVIEW ─── */}
           {step >= 3 && (
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="flex items-center gap-2 px-6 py-4 border-b bg-gray-50">
@@ -767,14 +731,23 @@ const Checkout = () => {
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                   {cartItems.map((item, i) => (
                     <div key={i} className="flex gap-3 items-center">
+                      {/* ✅ FIXED: use item.images?.length instead of item.image */}
                       <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                        {item.image ? <img
-                          src={getProductImage(item)}
-                          alt={item.name}
-                          className="max-h-32 object-contain transition-transform duration-300 group-hover:scale-105"
-                          onError={(e) => (e.target.src = "/placeholder.png")}
-                        />
-                          : <div className="w-full h-full flex items-center justify-center text-gray-400"><Package size={18} /></div>}
+                        {item.images?.length > 0 ? (
+                          <img
+                            src={getProductImage(item)}
+                            alt={item.productName || item.name}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/placeholder.png";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <Package size={18} />
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{item.productName || item.name}</p>

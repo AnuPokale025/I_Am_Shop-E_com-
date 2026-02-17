@@ -8,14 +8,15 @@ const SubCategory = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     fetchSubCategories();
   }, [categoryId]);
 
   const fetchSubCategories = async () => {
     try {
       const data = await userAPI.getSubCategories(categoryId);
-    
-      
+
+
       setSubCategories(data || []);
     } catch (error) {
       console.error("Subcategory fetch error:", error);
@@ -23,7 +24,7 @@ const SubCategory = () => {
   };
 
   const handleClick = (subId) => {
-    navigate(`/${subId}/products`);
+    navigate(`/subcategory/${subId}/products`);
   };
 
   return (

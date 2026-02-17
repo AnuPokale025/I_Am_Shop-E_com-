@@ -39,6 +39,7 @@ const Orders = () => {
   /* ================= FETCH ORDERS ================= */
   useEffect(() => {
     fetchOrders();
+     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
   const fetchOrders = async () => {
@@ -47,7 +48,7 @@ const Orders = () => {
       setError("");
 
       const response = await userAPI.getOrders();
-
+       console.log("Orders fetched:", response);
       // ✅ handle multiple backend response formats
       const ordersData = response?.orders || response?.data || response || [];
 
@@ -482,7 +483,7 @@ const Orders = () => {
                       </h3>
                       <p className="text-sm text-gray-500 flex items-center gap-2">
                         <Calendar size={14} />
-                        Placed on {order.date}
+                        Placed on {order.estimatedelivery}
                       </p>
                     </div>
 

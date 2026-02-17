@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -19,15 +20,29 @@ const UserLayout = () => {
   const [userMenu, setUserMenu] = useState(false);
   const [openLocation, setOpenLocation] = useState(false);
   const [location, setLocation] = useState("Select Location");
+  const userMenuRef = useRef(null);
 
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { getTotalItems } = useCart();
 
   useEffect(() => {
-    const savedLocation = localStorage.getItem("userLocation");
-    if (savedLocation) setLocation(savedLocation);
+    const handleClickOutside = (event) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target)
+      ) {
+        setUserMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -95,15 +110,17 @@ const UserLayout = () => {
               {/* Cart */}
               <Link to="/cart" className="relative">
                 <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-green-600 transition" />
-                {getTotalItems() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                    {getTotalItems()}
-                  </span>
-                )}
+
+                <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {getTotalItems() || 0}
+                </span>
               </Link>
 
+
+
               {/* User */}
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
+
                 <button
                   onClick={() => setUserMenu(!userMenu)}
                   className="flex items-center gap-2 hover:text-green-600"
@@ -115,7 +132,12 @@ const UserLayout = () => {
                 </button>
 
                 {userMenu && (
-                  <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg border overflow-hidden">
+                  <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg border overflow-hidden
+  transition-all duration-200 ease-in-out
+  opacity-100 translate-y-0
+  animate-in fade-in slide-in-from-top-1">
+
+
                     <Link
                       to="/profile"
                       className="block px-4 py-2 hover:bg-gray-100"
