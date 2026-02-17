@@ -2,8 +2,14 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 /* ==================== AXIOS INSTANCE ==================== */
+// In development, use relative /api path (proxied by Vite)
+// In production, use the full API URL
+const baseURL = import.meta.env.DEV 
+  ? '/api' 
+  : (import.meta.env.VITE_API_URL || 'https://iamashop-production.up.railway.app/api');
+
 const API = axios.create({
-  baseURL: "https://iamashop-production.up.railway.app/api",
+  baseURL: baseURL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -77,7 +83,7 @@ export const getProductsBySubcategory = (subcategoryId) =>
 export const getFeaturedProducts = () =>
   API.get("/products/featured");
 export const searchProducts = (query) =>
-  API.get(`/products/search?q=${query}`);
+  API.get("/products/search", { params: { q: query } });
 export const createProduct = (data) =>
   API.post("/products", data);
 export const updateProduct = (id, data) =>

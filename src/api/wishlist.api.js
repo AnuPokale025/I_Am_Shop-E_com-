@@ -18,7 +18,9 @@ const wishlistAPI = {
   addToWishlist: async (productId) => {
     try {
       console.log(`📤 POST /users/wishlist/add?productId=${productId}`);
-      const response = await apiClient.post(`/users/wishlist/add?productId=${productId}`);
+      const response = await apiClient.post("/users/wishlist/add", null, {
+        params: { productId },
+      });
       console.log("✅ Added to wishlist:", response.data);
       return response.data;
     } catch (error) {
@@ -31,7 +33,9 @@ const wishlistAPI = {
   removeFromWishlist: async (productId) => {
     try {
       console.log(`📤 DELETE /users/wishlist/remove?productId=${productId}`);
-      const response = await apiClient.delete(`/users/wishlist/remove?productId=${productId}`);
+      const response = await apiClient.delete("/users/wishlist/remove", {
+        params: { productId },
+      });
       console.log("✅ Removed from wishlist:", response.data);
       return response.data;
     } catch (error) {

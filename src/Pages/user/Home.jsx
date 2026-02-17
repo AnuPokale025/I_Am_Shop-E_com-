@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Heart, MapPin, Filter, Star, Truck, Shield, RotateCcw, Zap, Clock, Package, Leaf, Award, Users, TrendingUp, Sparkles } from 'lucide-react';
 import { categoryData } from '../Categories';
 import wishlistAPI from '../../api/wishlist.api';
+import { getCategories } from '../../api/axios';
+import productAPI from '../../api/product.api';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,26 +36,17 @@ const Home = () => {
     try {
       setLoading(true);
 
-      const [categoriesResponse, productsResponse] = await Promise.all([
-        fetch("https://iamashop-production.up.railway.app/api/categories"),
-        fetch("https://iamashop-production.up.railway.app/api/products"),
-      ]);
-
-      if (!categoriesResponse.ok || !productsResponse.ok) {
-        throw new Error("API failed");
-      }
-
       const [categoriesData, productsData] = await Promise.all([
-        categoriesResponse.json(),
-        productsResponse.json(),
+        getCategories(),
+        productAPI.getAllProducts(),
       ]);
 
-      const categoriesArray = Array.isArray(categoriesData)
-        ? categoriesData
-        : [];
-      const productsArray = Array.isArray(productsData)
-        ? productsData
-        : [];
+      const categoriesArray = Array.isArray(categoriesData.data)
+        ? categoriesData.data
+        : Array.isArray(categoriesData) ? categoriesData : [];
+      const productsArray = Array.isArray(productsData.data)
+        ? productsData.data
+        : Array.isArray(productsData) ? productsData : [];
 
       const mappedCategories = categoriesArray.map((cat) => {
         const localCat = categoryData.find(
@@ -285,7 +278,7 @@ const Home = () => {
           {Array.isArray(categories) && categories.length > 0 ? (
             categories.slice(0, 12).map((category, index) => (
               <Link
-                key={category.id}
+                key={category.id || category._id || `category-${index}`}
                 to={'/subcategories'}
                 className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
               >
@@ -440,9 +433,9 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {featuredProducts.map((product) => (
+          {featuredProducts.map((product, index) => (
             <Link
-              key={product.id}
+              key={product.id || product._id || `product-${index}`}
               to={`/product/${product.id}`}
               className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
             >
