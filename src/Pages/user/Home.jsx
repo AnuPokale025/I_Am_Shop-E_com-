@@ -187,7 +187,7 @@ const Home = () => {
               Fresh Grocery <br /> Delivered to Your Door
             </h1>
 
-            <p className="text-xl md:text-2xl text-green-50 mb-8">
+            <p className="text-xl md:text-2xl text-black mb-8">
               Groceries, packaged food, household & daily essentials
             </p>
 
