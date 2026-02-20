@@ -4,6 +4,7 @@ import {
   MapPin, CreditCard, Wallet, ArrowLeft, Plus, Shield, Truck,
   Package, CheckCircle, Tag, ChevronRight, Home, Briefcase, X,
   Edit2, BadgeCheck, AlertCircle, ChevronDown, Navigation,
+  ShoppingCart,
 } from "lucide-react";
 import checkoutAPI from "../../api/checkout.api";
 import userAPI from "../../api/user.api";
@@ -425,9 +426,14 @@ const Checkout = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center min-h-screen gap-3 bg-gray-50">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-gray-500 text-sm">Loading checkout…</p>
+      <div className="min-h-screen flex justify-center items-center bg-slate-50">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto"></div>
+            <ShoppingCart className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-emerald-600" size={28} />
+          </div>
+          <p className="mt-4 text-slate-600 font-medium">Loading your checkout...</p>
+        </div>
       </div>
     );
   }

@@ -22,6 +22,7 @@ import {
   ChevronRight,
   X,
   AlertTriangle,
+  ShoppingCart,
 } from "lucide-react";
 import userAPI from "../../api/user.api";
 
@@ -38,8 +39,9 @@ const Orders = () => {
 
   /* ================= FETCH ORDERS ================= */
   useEffect(() => {
-    fetchOrders();
      window.scrollTo({ top: 0, behavior: "instant" });
+    fetchOrders();
+    
   }, []);
 
   const fetchOrders = async () => {
@@ -48,7 +50,8 @@ const Orders = () => {
       setError("");
 
       const response = await userAPI.getOrders();
-       console.log("Orders fetched:", response);
+     
+      
       // ✅ handle multiple backend response formats
       const ordersData = response?.orders || response?.data || response || [];
 
@@ -223,18 +226,13 @@ const Orders = () => {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-green-50">
-        <div className="flex flex-col items-center gap-4">
-          {/* <div className="relative">
-            <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-            <div
-              className="absolute inset-0 w-16 h-16 border-4 border-green-300 border-b-transparent rounded-full animate-spin"
-              style={{ animationDirection: "reverse", animationDuration: "1s" }}
-            ></div>
-          </div> */}
-          <div className="min-h-screen flex items-center justify-center text-gray-500">
-            Loading orders...
+      <div className="min-h-screen flex justify-center items-center bg-slate-50">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto"></div>
+            <ShoppingCart className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-emerald-600" size={28} />
           </div>
+          <p className="mt-4 text-slate-600 font-medium">Loading your orders...</p>
         </div>
       </div>
     );
@@ -533,7 +531,7 @@ const Orders = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
                         <MapPin className="h-5 w-5 text-purple-600" />
                       </div>
@@ -545,7 +543,7 @@ const Orders = () => {
                           {order.deliveryAddress}
                         </p>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </Link>
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import productAPI from "../../api/product.api";
+import { ShoppingCart } from "lucide-react";
 
 const SearchProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -60,8 +61,14 @@ const SearchProducts = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-10 text-gray-500">
-        Loading products...
+      <div className="min-h-screen flex justify-center items-center bg-slate-50">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto"></div>
+            <ShoppingCart className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-emerald-600" size={28} />
+          </div>
+          <p className="mt-4 text-slate-600 font-medium">Loading your products...</p>
+        </div>
       </div>
     );
   }
@@ -87,12 +94,12 @@ const SearchProducts = () => {
               className="bg-white rounded-xl shadow p-4 hover:shadow-md transition"
             >
               <div className="h-40 flex items-center justify-center">
-               <img
-                    src={getProductImage(product)}
-                    alt={product.name}
-                    className="h-28 object-contain"
-                    onError={(e) => (e.target.src = "/placeholder.png")}
-                  />
+                <img
+                  src={getProductImage(product)}
+                  alt={product.name}
+                  className="h-28 object-contain"
+                  onError={(e) => (e.target.src = "/placeholder.png")}
+                />
               </div>
 
               <h3 className="mt-3 font-semibold text-gray-800 line-clamp-2">
