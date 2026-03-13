@@ -90,18 +90,19 @@ const authAPI = {
   },
 
   /* ================= RESET PASSWORD ================= */
-  resetPassword: async ({ token, password, role }) => {
-    try {
-      const res = await apiClient.post("/auth/reset-password", {
-        token,
-        password,
-        role,
-      });
-      return res.data;
-    } catch (error) {
-      handleError(error);
-    }
-  },
+resetPassword: async ({ email, otp, newPassword, role }) => {
+  try {
+    const res = await apiClient.post("/auth/reset-password", {
+      email,
+      otp,
+      newPassword, // ✅ FIXED
+      role,
+    });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+},
 
   /* ================= REFRESH TOKEN ================= */
   refreshToken: async () => {

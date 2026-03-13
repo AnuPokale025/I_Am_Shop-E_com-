@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 // In production, use the full API URL
 const baseURL = import.meta.env.DEV 
   ? '/api' 
-  : (import.meta.env.VITE_API_URL || 'https://iamashop-production.up.railway.app/api');
+  : (import.meta.env.VITE_API_URL || 'https://i-am-shop-backend-production.up.railway.app/api');
 
 const API = axios.create({
   baseURL: baseURL,
