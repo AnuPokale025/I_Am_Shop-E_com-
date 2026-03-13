@@ -24,7 +24,7 @@ const UserLayout = () => {
   const userMenuRef = useRef(null);
 
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { getTotalItems } = useCart();
 
   /* ================= FETCH WISHLIST COUNT ================= */
@@ -40,14 +40,16 @@ const UserLayout = () => {
 
   /* ================= INITIAL LOAD ================= */
   useEffect(() => {
-    fetchWishlistCount();
+    if (isAuthenticated) {
+      fetchWishlistCount();
+    }
 
     // Load saved location
     const savedLocation = localStorage.getItem("selectedLocation");
     if (savedLocation) {
       setLocation(savedLocation);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   /* ================= CLOSE USER MENU ON OUTSIDE CLICK ================= */
   useEffect(() => {
@@ -134,37 +136,51 @@ const UserLayout = () => {
 
               {/* User */}
               <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setUserMenu(!userMenu)}
-                  className="flex items-center gap-2 hover:text-green-600"
-                >
-                  <User className="h-6 w-6 text-gray-700" />
-                  <span className="hidden md:block text-sm font-medium">
-                    {user?.name?.split(" ")[0] || "Account"}
-                  </span>
-                </button>
-
-                {userMenu && (
-                  <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg border overflow-hidden">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      Orders
-                    </Link>
+                {isAuthenticated ? (
+                  <>
                     <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                      onClick={() => setUserMenu(!userMenu)}
+                      className="flex items-center gap-2 hover:text-green-600"
                     >
-                      Logout
+                      <User className="h-6 w-6 text-gray-700" />
+                      <span className="hidden md:block text-sm font-medium">
+                        {user?.name?.split(" ")[0] || "Account"}
+                      </span>
                     </button>
-                  </div>
+
+                    {userMenu && (
+                      <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg border overflow-hidden">
+                        <Link
+                          to="/profile"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                        >
+                          Profile
+                        </Link>
+                        <Link
+                          to="/orders"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                        >
+                          Orders
+                        </Link>
+                        <button
+                          onClick={logout}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-2 hover:text-green-600"
+                  >
+                    <User className="h-6 w-6 text-gray-700" />
+                    <span className="hidden md:block text-sm font-medium">
+                      Login
+                    </span>
+                  </Link>
                 )}
               </div>
 

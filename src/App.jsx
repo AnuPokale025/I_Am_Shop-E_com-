@@ -79,6 +79,17 @@ function App() {
                 {/* Vendor public */}
                 <Route path="/vendor/login" element={<VendorLogin />} />
 
+                {/* ================= USER PUBLIC ================= */}
+                <Route element={<UserLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/categories" element={<Category />} />
+                  <Route path="/category/:id" element={<Category />} />
+                  <Route path="/search" element={<SearchProducts />} />
+                  <Route path="/subcategories" element={<SubCategory />} />
+                  <Route path="/subcategory/:subId/products" element={<Products />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                </Route>
+
                 {/* ================= USER PROTECTED ================= */}
                 <Route
                   element={
@@ -87,13 +98,6 @@ function App() {
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="/" element={<Home />} />
-                  <Route path="/categories" element={<Category />} />
-                  <Route path="/category/:id" element={<Category />} />
-                  <Route path="/search" element={<SearchProducts />} />
-                  <Route path="/subcategories" element={<SubCategory />} />
-                  <Route path="/subcategory/:subId/products" element={<Products />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/add-address" element={<AddAddress />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
