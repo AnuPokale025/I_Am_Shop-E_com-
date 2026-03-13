@@ -8,6 +8,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  ShoppingCart,
 } from "lucide-react";
 import vendorAPI from "../../api/vendor.api";
 
@@ -119,8 +120,14 @@ const VendorOrders = () => {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center  text-gray-500">
-        Loading orders...
+     <div className="min-h-screen flex justify-center items-center bg-slate-50">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto"></div>
+            <ShoppingCart className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-emerald-600" size={28} />
+          </div>
+          <p className="mt-4 text-slate-600 font-medium">Loading your orders...</p>
+        </div>
       </div>
     );
   }

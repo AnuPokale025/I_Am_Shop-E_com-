@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -11,7 +11,6 @@ import {
   User,
 } from "lucide-react";
 import { login as authLogin } from "../../api/axios";
-import Cookies from "js-cookie";
 
 const Login = () => {
   const location = useLocation();
